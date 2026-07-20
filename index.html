@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国家队ETF监控 · 平准基金观测站</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="eyebrow">HUIJIN ETF WATCH · 非官方公开数据观测</p>
+    <h1>平准基金观测站</h1>
+    <p class="subtitle">以ETF每日总份额与定期报告持仓的"倒挂"为信号，追踪国家队的买入与卖出</p>
+    <p class="statusline" id="statusline">数据加载中…</p>
+  </div>
+</header>
+
+<main>
+  <section id="cards" class="cards" aria-label="总览指标"></section>
+
+  <section aria-labelledby="h-etf">
+    <h2 id="h-etf">ETF份额走势 <span class="h-note">红色区间 = 总份额跌破汇金基线（确认减持）</span></h2>
+    <div id="etf-charts" class="chart-grid"></div>
+  </section>
+
+  <section aria-labelledby="h-index">
+    <h2 id="h-index">指数与政策底 / 恐慌底标注 <span class="h-note">蓝=平准买入 · 紫=其他政策底 · 红=恐慌底 · 橙=减持</span></h2>
+    <div id="index-charts" class="chart-grid one-col"></div>
+  </section>
+
+  <section aria-labelledby="h-study">
+    <h2 id="h-study">历史规律（事件研究）</h2>
+    <div id="study" class="study"><p class="empty">尚未生成事件研究结果。回补指数日线后运行 <code>python scripts/event_study.py</code>。</p></div>
+  </section>
+
+  <section aria-labelledby="h-comments">
+    <h2 id="h-comments">每日解读</h2>
+    <div id="comments"><p class="empty">暂无解读。</p></div>
+  </section>
+</main>
+
+<footer>
+  <p>数据来源：交易所与东方财富公开接口、基金定期报告；"倒挂差额"仅为汇金减持量的下限，份额变化并非全部来自国家队。
+  本站为个人研究工具，样本量有限、方法存在内生性偏差，历史规律不保证未来重复，<strong>不构成任何投资建议</strong>。</p>
+  <p id="baseline-warn" class="warn" hidden></p>
+</footer>
+<script src="assets/app.js?v=20260720"></script>
+</body>
+</html>

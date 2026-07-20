@@ -1,0 +1,15 @@
+{
+  "updated_from": "各基金2025年四季报",
+  "baseline_date": "2025-12-31",
+  "note": "huijin_shares_yi 为汇金投资+汇金资产合计持有份额(亿份); null 表示暂无可靠基线, 只画走势不做倒挂判断",
+  "etfs": [
+    {"code": "510300", "exchange": "SH", "name": "华泰柏瑞沪深300ETF", "huijin_shares_yi": 735.13},
+    {"code": "510310", "exchange": "SH", "name": "易方达沪深300ETF", "huijin_shares_yi": 559.00},
+    {"code": "510050", "exchange": "SH", "name": "华夏上证50ETF", "huijin_shares_yi": 487.60},
+    {"code": "510330", "exchange": "SH", "name": "华夏沪深300ETF", "huijin_shares_yi": 420.28},
+    {"code": "159919", "exchange": "SZ", "name": "嘉实沪深300ETF", "huijin_shares_yi": 355.00},
+    {"code": "512100", "exchange": "SH", "name": "南方中证1000ETF", "huijin_shares_yi": 221.69},
+    {"code": "588000", "exchange": "SH", "name": "华夏科创50ETF", "huijin_shares_yi": null},
+    {"code": "159915", "exchange": "SZ", "name": "易方达创业板ETF", "huijin_shares_yi": null}
+  ]
+}

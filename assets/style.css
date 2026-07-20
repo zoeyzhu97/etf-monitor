@@ -1,0 +1,76 @@
+/* 平准基金观测站 —— 数据终端风格
+   纸白/墨色为底, 仅保留信号色: 蓝(买入/政策) 红(恐慌/倒挂) 橙(减持) 紫(政策底) */
+:root {
+  --paper: #f7f6f2;
+  --surface: #ffffff;
+  --ink: #17181c;
+  --muted: #787672;
+  --line: #e3e1da;
+  --blue: #1f5fbf;
+  --red: #d23b3b;
+  --orange: #d97b1f;
+  --violet: #5b48b0;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  --serif: "Songti SC", "Noto Serif SC", "SimSun", serif;
+  --sans: system-ui, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #101114; --surface: #1a1c20; --ink: #e8e7e3;
+    --muted: #9a9891; --line: #2b2d33;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); line-height: 1.65; font-size: 15px;
+}
+.masthead { border-bottom: 3px double var(--ink); }
+.masthead-inner { max-width: 1080px; margin: 0 auto; padding: 40px 20px 24px; }
+.eyebrow {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+  color: var(--muted); margin: 0 0 6px;
+}
+h1 { font-family: var(--serif); font-size: 34px; margin: 0 0 6px; letter-spacing: .04em; }
+.subtitle { margin: 0; color: var(--muted); }
+.statusline {
+  font-family: var(--mono); font-size: 12.5px; margin: 14px 0 0;
+  padding: 8px 12px; background: var(--surface); border: 1px solid var(--line);
+}
+main { max-width: 1080px; margin: 0 auto; padding: 8px 20px 40px; }
+h2 {
+  font-family: var(--serif); font-size: 20px; margin: 40px 0 14px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+}
+.h-note { font-family: var(--sans); font-size: 12.5px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 24px; }
+.card { background: var(--surface); border: 1px solid var(--line); padding: 14px 16px; }
+.card .k { font-size: 12.5px; color: var(--muted); margin: 0 0 2px; }
+.card .v { font-family: var(--mono); font-size: 22px; margin: 0; }
+.card .v.red { color: var(--red); }
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 16px; }
+.chart-grid.one-col { grid-template-columns: 1fr; }
+.chart-box { background: var(--surface); border: 1px solid var(--line); padding: 10px 6px 2px; }
+.chart-box .chart-title { font-size: 13.5px; margin: 2px 10px 0; display: flex; justify-content: space-between; }
+.chart-box .chart-title .badge { font-family: var(--mono); font-size: 12px; color: var(--red); }
+.chart { width: 100%; height: 260px; }
+.chart.tall { height: 340px; }
+table.study-table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--surface); }
+table.study-table th, table.study-table td {
+  border: 1px solid var(--line); padding: 6px 10px; text-align: right;
+  font-family: var(--mono);
+}
+table.study-table th:first-child, table.study-table td:first-child { text-align: left; font-family: var(--sans); }
+table.study-table caption { text-align: left; font-size: 12.5px; color: var(--muted); padding: 6px 0; caption-side: bottom; }
+.pos { color: var(--red); }   /* A股惯例: 红涨 */
+.neg { color: #1e7d3c; }      /* 绿跌 */
+.comment { background: var(--surface); border: 1px solid var(--line); padding: 4px 18px; margin-bottom: 12px; }
+.comment h3 { font-family: var(--mono); font-size: 14px; }
+.empty { color: var(--muted); }
+footer { border-top: 3px double var(--ink); margin-top: 40px; }
+footer p { max-width: 1080px; margin: 0 auto; padding: 16px 20px; font-size: 12.5px; color: var(--muted); }
+.warn { color: var(--orange); font-weight: 600; }
+code { font-family: var(--mono); background: var(--surface); border: 1px solid var(--line); padding: 1px 5px; font-size: 12.5px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width: 520px) { .chart-grid { grid-template-columns: 1fr; } h1 { font-size: 27px; } }

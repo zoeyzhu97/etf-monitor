@@ -1,0 +1,15 @@
+{
+  "requested_date": "2026-07-16",
+  "first_round_fetch_time_utc": "2026-07-20T22:19:05Z",
+  "endpoint": "https://push2.eastmoney.com/api/qt/stock/get",
+  "request_params": {
+    "secid": "1.510300",
+    "fields": "f57,f58,f84,f85,f116,f117"
+  },
+  "raw_response_saved": false,
+  "only_persisted_parsed_value": {
+    "f84_shares": 19701487616,
+    "shares_yi": 197.01487616
+  },
+  "note": "第一轮代码只返回解析后的份额，未打印或保存 response.text；stock/get 不支持按历史日期回查，因此无法事后恢复完整原始JSON。此文件是审计状态说明，不是伪造的原始响应。"
+}

@@ -1,0 +1,698 @@
+[
+  {
+    "date": "2026-01-23",
+    "total_shares_yi": 159.96,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-01-26",
+    "total_shares_yi": 134.81,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-01-27",
+    "total_shares_yi": 127.56,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-01-28",
+    "total_shares_yi": 110.68,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-01-29",
+    "total_shares_yi": 106.63,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-01-30",
+    "total_shares_yi": 107.29,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-02",
+    "total_shares_yi": 101.64,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-03",
+    "total_shares_yi": 104.23,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-04",
+    "total_shares_yi": 99.94,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-05",
+    "total_shares_yi": 98.92,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-06",
+    "total_shares_yi": 100.41,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-09",
+    "total_shares_yi": 105.61,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-10",
+    "total_shares_yi": 104.28,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-11",
+    "total_shares_yi": 106.02,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-12",
+    "total_shares_yi": 108.57,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-13",
+    "total_shares_yi": 101.49,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-24",
+    "total_shares_yi": 100.15,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-25",
+    "total_shares_yi": 100.55,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-26",
+    "total_shares_yi": 91.05,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-02-27",
+    "total_shares_yi": 89.48,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-02",
+    "total_shares_yi": 82.24,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-03",
+    "total_shares_yi": 82.78,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-04",
+    "total_shares_yi": 83.48,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-05",
+    "total_shares_yi": 78.32,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-06",
+    "total_shares_yi": 77.76,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-09",
+    "total_shares_yi": 77.28,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-10",
+    "total_shares_yi": 77.37,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-11",
+    "total_shares_yi": 74.7,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-12",
+    "total_shares_yi": 72.34,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-13",
+    "total_shares_yi": 72.93,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-16",
+    "total_shares_yi": 73.09,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-17",
+    "total_shares_yi": 74.12,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-18",
+    "total_shares_yi": 75.06,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-19",
+    "total_shares_yi": 74.28,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-20",
+    "total_shares_yi": 76.92,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-23",
+    "total_shares_yi": 81.33,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-24",
+    "total_shares_yi": 82.46,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-25",
+    "total_shares_yi": 78.16,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-26",
+    "total_shares_yi": 76.35,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-27",
+    "total_shares_yi": 77.48,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-30",
+    "total_shares_yi": 75.24,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-03-31",
+    "total_shares_yi": 75.65,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-01",
+    "total_shares_yi": 76.46,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-02",
+    "total_shares_yi": 74.26,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-03",
+    "total_shares_yi": 75.61,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-07",
+    "total_shares_yi": 78.2,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-08",
+    "total_shares_yi": 87.82,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-09",
+    "total_shares_yi": 81.31,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-10",
+    "total_shares_yi": 79.14,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-13",
+    "total_shares_yi": 76.31,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-14",
+    "total_shares_yi": 74.43,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-15",
+    "total_shares_yi": 75.08,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-16",
+    "total_shares_yi": 75.24,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-17",
+    "total_shares_yi": 74.28,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-20",
+    "total_shares_yi": 71.62,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-21",
+    "total_shares_yi": 69.26,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-22",
+    "total_shares_yi": 67.34,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-23",
+    "total_shares_yi": 68.61,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-24",
+    "total_shares_yi": 67.49,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-27",
+    "total_shares_yi": 60.08,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-28",
+    "total_shares_yi": 55.35,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-29",
+    "total_shares_yi": 55.59,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-04-30",
+    "total_shares_yi": 43.21,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-06",
+    "total_shares_yi": 47.38,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-07",
+    "total_shares_yi": 46.26,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-08",
+    "total_shares_yi": 42.38,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-11",
+    "total_shares_yi": 36.7,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-12",
+    "total_shares_yi": 34.72,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-13",
+    "total_shares_yi": 35.98,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-14",
+    "total_shares_yi": 33.24,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-15",
+    "total_shares_yi": 34.63,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-18",
+    "total_shares_yi": 33.73,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-19",
+    "total_shares_yi": 33.77,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-20",
+    "total_shares_yi": 30.44,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-21",
+    "total_shares_yi": 34.22,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-22",
+    "total_shares_yi": 35.2,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-25",
+    "total_shares_yi": 30.07,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-26",
+    "total_shares_yi": 31.17,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-27",
+    "total_shares_yi": 30.54,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-28",
+    "total_shares_yi": 29.42,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-05-29",
+    "total_shares_yi": 36.24,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-01",
+    "total_shares_yi": 44.41,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-02",
+    "total_shares_yi": 45.09,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-03",
+    "total_shares_yi": 37.24,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-04",
+    "total_shares_yi": 34.47,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-05",
+    "total_shares_yi": 33.61,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-08",
+    "total_shares_yi": 42.3,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-09",
+    "total_shares_yi": 32.16,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-10",
+    "total_shares_yi": 31.61,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-11",
+    "total_shares_yi": 33.01,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-12",
+    "total_shares_yi": 35.06,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-15",
+    "total_shares_yi": 35.77,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-16",
+    "total_shares_yi": 31.92,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-17",
+    "total_shares_yi": 32.47,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-18",
+    "total_shares_yi": 32.34,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-22",
+    "total_shares_yi": 31.79,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-23",
+    "total_shares_yi": 32.12,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-24",
+    "total_shares_yi": 30.33,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-25",
+    "total_shares_yi": 29.69,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-26",
+    "total_shares_yi": 30.42,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-29",
+    "total_shares_yi": 33.68,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-06-30",
+    "total_shares_yi": 30.9,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-01",
+    "total_shares_yi": 30.08,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-02",
+    "total_shares_yi": 33.97,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-03",
+    "total_shares_yi": 34.54,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-06",
+    "total_shares_yi": 39.7,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-07",
+    "total_shares_yi": 47.52,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-08",
+    "total_shares_yi": 57.98,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-09",
+    "total_shares_yi": 58.99,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-10",
+    "total_shares_yi": 52.5,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-13",
+    "total_shares_yi": 71.35,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-14",
+    "total_shares_yi": 76.29,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-15",
+    "total_shares_yi": 75.57,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-16",
+    "total_shares_yi": 87.13,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-17",
+    "total_shares_yi": 97.6,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  },
+  {
+    "date": "2026-07-20",
+    "total_shares_yi": 104.41,
+    "source": "sse_official_derived_nav",
+    "verified": true
+  }
+]
