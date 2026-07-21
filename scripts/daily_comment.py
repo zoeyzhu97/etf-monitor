@@ -78,18 +78,21 @@ def _analysis_lines(date_str, assessment, inversion_count):
     counts = (assessment.get("verdict") or {}).get("counts", {})
     support = counts.get("support", 0)
     risk = counts.get("risk", 0)
+    share_text = share.get("explanation", "暂无稳定方向。")
+    share_text = share_text.replace(
+        "它说明市场净申购偏强，但不能证明买方就是国家队。",
+        "市场净申购偏强。")
     lines = [
         "**先看结论**", "",
         f"{conclusion}四个模型中{support}个偏暖、{risk}个提示风险，尚未共同收敛。", "",
         "**数据怎么说**", "",
-        f"- ETF份额：{share.get('explanation', '暂无稳定方向。')}",
+        f"- ETF份额：{share_text}",
         f"- 指数趋势：{trend.get('explanation', '暂无稳定方向。')}",
         f"- 市场压力：{stress.get('explanation', '暂无稳定方向。')}",
     ]
     if inversion_count:
         lines.append(
-            f"- 历史参考线：{inversion_count}只ETF的总份额低于2025年末持仓参考线。"
-            "这只说明市场总份额与旧参考值存在差额，不能据此确认汇金已经卖出。")
+            f"- 历史参考线：{inversion_count}只ETF的总份额低于2025年末持仓参考线。")
 
     lines += [
         "", "**接下来重点观察**", "",
@@ -99,7 +102,7 @@ def _analysis_lines(date_str, assessment, inversion_count):
     issues = (((assessment.get("scorecard") or {}).get("data_confidence") or {})
               .get("issues", []))
     if issues:
-        lines.append(f"- 数据限制：{'；'.join(issues)}，因此不要把参考线差额直接当成国家队成交。")
+        lines.append(f"- 数据时效：{'；'.join(issues)}，参考线的解释力度相应下降。")
     return lines + [""]
 
 

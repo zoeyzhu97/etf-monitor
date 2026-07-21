@@ -197,7 +197,7 @@ async function renderEtfSection(conf) {
         { type: "slider", filterMode: "filter", height: 16, bottom: 4,
           start: zoomStartPercent, end: 100 }
       ],
-      xAxis: { type: "category", data: rows.map(r => r.date),
+      xAxis: { type: "category", data: rows.map(r => r.date), triggerEvent: true,
                axisLabel: {
                  color: AXIS, hideOverlap: true,
                  showMinLabel: true, showMaxLabel: true,
@@ -213,7 +213,8 @@ async function renderEtfSection(conf) {
                axisLabel: { color: AXIS },
                splitLine: { lineStyle: { color: GRIDLINE } } },
       tooltip: {
-        trigger: "axis", confine: true,
+        trigger: "axis", triggerOn: "mousemove|click", confine: true,
+        axisPointer: { type: "line", snap: true },
         formatter: params => {
           const date = params[0] ? params[0].axisValue : rows[0].date;
           const row = rows[dateIndex.get(date) ?? 0];
@@ -241,6 +242,12 @@ async function renderEtfSection(conf) {
         }
       }]
     }));
+    chart.on("click", params => {
+      if (params.componentType !== "xAxis" || !dateIndex.has(params.value)) return;
+      chart.dispatchAction({
+        type: "showTip", seriesIndex: 0, dataIndex: dateIndex.get(params.value)
+      });
+    });
   }
 
   // 第一张图初始化时网格里还只有一张卡片，宽度会暂时占满整行。

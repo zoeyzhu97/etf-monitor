@@ -125,6 +125,8 @@ class TestComment(unittest.TestCase):
         self.assertIn("有资金在接", txt)
         self.assertIn("接下来重点观察", txt)
         self.assertIn("参考线过期", txt)
+        self.assertNotIn("不能证明买方就是国家队", txt)
+        self.assertNotIn("不能据此确认汇金已经卖出", txt)
 
 
 class TestEventStudy(unittest.TestCase):
