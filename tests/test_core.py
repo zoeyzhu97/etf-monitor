@@ -17,6 +17,8 @@ from daily_assessment import (assess_share_flow, assess_trend, assess_history,
                               _recent_streak, wilson_interval)  # noqa: E402
 from fetch_etf_shares import _parse_sse_share_payload  # noqa: E402
 from backfill_etf_shares import _date_chunks  # noqa: E402
+from check_data_freshness import (expected_trading_date,
+                                  find_stale_etfs)  # noqa: E402
 
 
 def mk_rows(vals, start_day=1):
@@ -59,6 +61,27 @@ class TestOfficialShareBackfill(unittest.TestCase):
         for current, following in zip(chunks, chunks[1:]):
             self.assertEqual(current[1] + datetime.timedelta(days=1),
                              following[0])
+
+
+class TestDataFreshness(unittest.TestCase):
+    def test_weekend_uses_previous_trading_day(self):
+        self.assertEqual(
+            expected_trading_date(datetime.date(2026, 7, 19)),
+            "2026-07-17",
+        )
+
+    def test_reports_only_lagging_etfs(self):
+        etfs = [
+            {"code": "510300", "name": "沪深300ETF"},
+            {"code": "588000", "name": "科创50ETF"},
+        ]
+        histories = {
+            "510300": [{"date": "2026-07-21"}],
+            "588000": [{"date": "2026-07-20"}],
+        }
+        stale = find_stale_etfs(etfs, histories, "2026-07-21")
+        self.assertEqual([item["code"] for item in stale], ["588000"])
+        self.assertEqual(stale[0]["latest_date"], "2026-07-20")
 
 
 class TestComment(unittest.TestCase):

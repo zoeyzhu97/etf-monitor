@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: '40 7 * * 1-5'   # UTC 07:40 = 北京时间 15:40
     - cron: '0 12 * * 1-5'   # 北京时间 20:00 兜底重试
+    - cron: '0 14 * * 1-5'   # 北京时间 22:00 最终重试
   workflow_dispatch:
 
 permissions:
@@ -33,6 +34,11 @@ jobs:
         run: python scripts/daily_assessment.py
       - name: Daily comment
         run: python scripts/daily_comment.py
+      - name: Check ETF data freshness after final retry
+        id: freshness
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 14 * * 1-5'
+        run: python scripts/check_data_freshness.py
+        continue-on-error: true
       - name: Commit & push
         run: |
           git config user.name "etf-monitor-bot"
@@ -50,4 +56,17 @@ jobs:
               repo: context.repo.repo,
               title: `抓取失败告警 ${new Date().toISOString().slice(0,10)}`,
               body: '份额抓取脚本退出码非0, 请检查数据源字段是否变动。'
+            });
+      - name: Alert on stale ETF date
+        if: steps.freshness.outcome == 'failure'
+        uses: actions/github-script@v7
+        env:
+          FRESHNESS_MESSAGE: ${{ steps.freshness.outputs.message }}
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `ETF日期滞后告警 ${new Date().toISOString().slice(0,10)}`,
+              body: process.env.FRESHNESS_MESSAGE || '北京时间22:00最终重试后ETF份额日期仍滞后。'
             });
