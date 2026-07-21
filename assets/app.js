@@ -13,13 +13,6 @@ const EVENT_STYLE = {
   trough: { color: "#d23b3b", label: "事后价格低点" },
   sell:   { color: "#d97b1f", label: "推算的份额减少窗口" }
 };
-const SOURCE_LABEL = {
-  szse_official: "深交所官方份额",
-  sse_official_shares: "上交所官方份额",
-  sse_official_derived_nav: "上交所规模反推份额",
-  sse_official_derived_px: "上交所规模/价格估算",
-  eastmoney_f84: "兜底数据·未核验"
-};
 const VOTE_LABEL = { support: "偏暖", risk: "警惕", neutral: "中性" };
 const dark = matchMedia("(prefers-color-scheme: dark)").matches;
 const AXIS = dark ? "#9a9891" : "#787672";
@@ -114,29 +107,23 @@ function normalizeShareRows(code, rows, adjustments) {
 async function renderEtfSection(conf) {
   const grid = document.getElementById("etf-charts");
   const cards = document.getElementById("cards");
-  const eventConfig = (await fetchJSON("data/huijin_etf_events.json")) ||
-    { monitoring_start: "2023-10-23", events: [] };
   const adjustments = (await fetchJSON("data/share_adjustments.json")) || [];
   const historyPairs = await Promise.all(conf.etfs.map(async etf =>
     [etf.code, normalizeShareRows(etf.code,
       (await fetchJSON(`data/history/${etf.code}.json`)) || [], adjustments)]));
   const histories = Object.fromEntries(historyPairs);
-  const changesByDate = new Map();
+  const largeChanges = [];
   for (const etf of conf.etfs) {
     for (const change of comparableShareChanges(histories[etf.code])) {
-      const aggregate = changesByDate.get(change.date) ||
-        { date: change.date, net: 0, increases: 0, decreases: 0 };
-      aggregate.net += change.delta;
-      if (change.delta > 0) aggregate.increases++;
-      if (change.delta < 0) aggregate.decreases++;
-      changesByDate.set(change.date, aggregate);
+      if (Math.abs(change.delta) >= 100) {
+        largeChanges.push({ ...change, code: etf.code, name: etf.name });
+      }
     }
   }
-  const breadthThreshold = Math.ceil(conf.etfs.length * 0.75);
-  const largeChanges = [...changesByDate.values()].filter(change =>
-    Math.abs(change.net) >= 100 &&
-    Math.max(change.increases, change.decreases) >= breadthThreshold);
-  const largeChangeByDate = new Map(largeChanges.map(change => [change.date, change]));
+  const monitoringStart = Object.values(histories)
+    .filter(rows => rows.length)
+    .map(rows => rows[0].date)
+    .sort()[0] || "—";
   let inverted = 0, watched = 0, latestDate = null;
   let coreSum = 0, coreCount = 0;
 
@@ -146,7 +133,7 @@ async function renderEtfSection(conf) {
     const box = el("div", "chart-box");
     const title = el("div", "chart-title",
       `<span>${etf.name} <code>${etf.code}</code></span>` +
-      `<span class="chart-meta"><span class="badge"></span><span class="source-note"></span></span>`);
+      `<span class="chart-meta"><span class="badge"></span></span>`);
     const chartDiv = el("div", "chart");
     box.append(title, chartDiv);
     grid.append(box);
@@ -155,7 +142,6 @@ async function renderEtfSection(conf) {
       continue;
     }
     const last = rows[rows.length - 1];
-    title.querySelector(".source-note").textContent = SOURCE_LABEL[last.source] || last.source || "来源未知";
     if (!latestDate || last.date > latestDate) latestDate = last.date;
     const base = etf.huijin_shares_yi;
     const isInv = base !== null && last.total_shares_yi < base;
@@ -181,60 +167,32 @@ async function renderEtfSection(conf) {
     }
     const chart = registerChart(echarts.init(chartDiv, null, { renderer: "svg" }));
     const dateIndex = new Map(rows.map((row, index) => [row.date, index]));
-    const officialMarks = (eventConfig.events || [])
-      .filter(event => event.type === "confirmed_buy" && event.date >= rows[0].date &&
-        event.date <= rows[rows.length - 1].date)
-      .map(event => {
-        let date = event.date;
-        if (!dateIndex.has(date)) {
-          const later = rows.find(row => row.date > date);
-          date = later ? later.date : null;
-        }
-        if (!date) return null;
-        const row = rows[dateIndex.get(date)];
-        return {
-          coord: [date, row.chart_shares_yi],
-          symbol: "diamond",
-          symbolSize: 18,
-          symbolOffset: [0, -12],
-          itemStyle: { color: "#1f5fbf", borderColor: "#fff", borderWidth: 1 },
-          label: { show: false },
-          tooltipText: `${event.date}<br><strong>国家队操作已确认</strong><br>${event.title}`
-        };
-      }).filter(Boolean);
     const changeMarks = largeChanges
-      .filter(change => dateIndex.has(change.date))
+      .filter(change => change.code === etf.code && dateIndex.has(change.date))
       .map(change => ({
         coord: [change.date, rows[dateIndex.get(change.date)].chart_shares_yi],
         symbol: "circle",
         symbolSize: 13,
         itemStyle: {
-          color: change.net > 0 ? "#d23b3b" : "#1e7d3c",
+          color: change.delta > 0 ? "#d23b3b" : "#1e7d3c",
           borderColor: "#fff",
           borderWidth: 1
         },
         label: { show: false },
-        tooltipText: `${change.date}<br><strong>机构级份额异动</strong><br>` +
-          `8只监测ETF合计${change.net > 0 ? "净增" : "净减"}${fmt(Math.abs(change.net), 1)}亿份` +
-          `（${change.increases}只增、${change.decreases}只减）<br>` +
-          `<strong>国家队介入：高度疑似（${change.net > 0 ? "买入" : "卖出"}方向）</strong><br>` +
-          "公开数据仍不能确认交易主体"
+        tooltipText: `${change.date}<br><strong>单只ETF百亿份额异动</strong><br>` +
+          `${etf.name}${change.delta > 0 ? "净增" : "净减"}` +
+          `${fmt(Math.abs(change.delta), 1)}亿份<br>` +
+          "属于机构级异动，但公开数据不能确认交易主体"
       }));
-    const adjustmentMarks = adjustments
-      .filter(item => item.code === etf.code && dateIndex.has(item.effective_date))
-      .map(item => ({
-        coord: [item.effective_date, rows[dateIndex.get(item.effective_date)].chart_shares_yi],
-        symbol: "rect",
-        symbolSize: 11,
-        itemStyle: { color: AXIS, borderColor: "#fff", borderWidth: 1 },
-        label: { show: false },
-        tooltipText: `${item.effective_date}<br><strong>份额口径调整，不是卖出</strong><br>${item.note}`
-      }));
+    const zoomStartPercent = rows.length > 250
+      ? ((rows.length - 250) / (rows.length - 1)) * 100
+      : 0;
     chart.setOption(Object.assign(baseChartOpts(), {
       grid: { left: 58, right: 24, top: 26, bottom: 52 },
       dataZoom: [
-        { type: "inside", filterMode: "none" },
-        { type: "slider", filterMode: "none", height: 16, bottom: 4 }
+        { type: "inside", filterMode: "none", start: zoomStartPercent, end: 100 },
+        { type: "slider", filterMode: "none", height: 16, bottom: 4,
+          start: zoomStartPercent, end: 100 }
       ],
       xAxis: { type: "category", data: rows.map(r => r.date),
                axisLabel: { color: AXIS, hideOverlap: true },
@@ -248,25 +206,12 @@ async function renderEtfSection(conf) {
           const i = params[0] ? params[0].dataIndex : 0;
           const row = rows[i];
           const displayed = row.chart_shares_yi;
-          const line = base === null ? "本ETF暂无可靠的汇金持仓参考线"
-            : (displayed < base
-              ? `低于历史参考线 ${(base - displayed).toFixed(1)} 亿份（不能据此确认是谁卖的）`
-              : `高于历史参考线 ${(displayed - base).toFixed(1)} 亿份`);
-          const normalized = Math.abs(displayed - Number(row.total_shares_yi)) > 0.01
-            ? `<br>原始披露 ${fmt(row.total_shares_yi)} 亿份；已按份额合并比例转为可比口径`
-            : "";
-          const signal = largeChangeByDate.get(row.date);
-          const signalText = signal
-            ? `<br>8只合计${signal.net > 0 ? "净增" : "净减"}${fmt(Math.abs(signal.net), 1)}亿份`
-            : "";
-          return `${row.date}<br>可比总份额 ${fmt(displayed)} 亿份${normalized}${signalText}<br>${line}<br>` +
-                 `来源：${SOURCE_LABEL[row.source] || row.source || "未知"}`;
+          return `${row.date}<br>总份额 ${fmt(displayed)} 亿份`;
         }
       },
       series: [{
-        type: "line", data: rows.map(r => r.chart_shares_yi),
-        lineStyle: { color: INKLINE, width: 2 }, itemStyle: { color: INKLINE },
-        symbolSize: 5,
+        type: "line", data: rows.map(r => r.chart_shares_yi), showSymbol: false,
+        lineStyle: { color: INKLINE, width: 1.8 }, itemStyle: { color: INKLINE },
         markLine: base === null ? undefined : {
           silent: true, symbol: "none",
           lineStyle: { color: "#1f5fbf", type: "dashed" },
@@ -275,11 +220,11 @@ async function renderEtfSection(conf) {
         },
         markArea: areas.length ? {
           silent: true,
-          itemStyle: { color: "rgba(210,59,59,0.13)" },
+          itemStyle: { color: "rgba(210,59,59,0.055)" },
           data: areas
         } : undefined,
         markPoint: {
-          data: [...changeMarks, ...adjustmentMarks, ...officialMarks],
+          data: changeMarks,
           tooltip: { formatter: p => p.data.tooltipText }
         }
       }]
@@ -298,7 +243,7 @@ async function renderEtfSection(conf) {
   cards.append(
     mk("监控标的", String(watched)),
     mk("低于历史参考线", String(inverted), inverted > 0),
-    mk("可比宽基总份额", coreCount ? fmt(coreSum, 1) + " 亿份" : "—"),
+    mk("宽基总份额", coreCount ? fmt(coreSum, 1) + " 亿份" : "—"),
     mk("持仓参考日", conf.baseline_date)
   );
   document.getElementById("statusline").textContent =
@@ -308,20 +253,19 @@ async function renderEtfSection(conf) {
   const signalBox = document.getElementById("etf-signal-summary");
   if (signalBox) {
     const sorted = largeChanges.slice().sort((a, b) =>
-      b.date.localeCompare(a.date) || Math.abs(b.net) - Math.abs(a.net));
+      b.date.localeCompare(a.date) || Math.abs(b.delta) - Math.abs(a.delta));
     const rowsHtml = sorted.map(change =>
-      `<li><time>${change.date}</time><span>高度疑似${change.net > 0 ? "买入" : "卖出"} · ` +
-      `${change.increases}只增 / ${change.decreases}只减</span>` +
-      `<strong class="${change.net > 0 ? "pos" : "neg"}">` +
-      `合计${change.net > 0 ? "净增" : "净减"}${fmt(Math.abs(change.net), 1)}亿份</strong></li>`).join("");
-    signalBox.innerHTML = `<p><strong>国家队行为怎么判断：</strong>` +
-      `蓝色菱形是汇金公开确认的ETF操作；红/绿圆点是8只监测ETF合计净增/净减超过100亿份、且至少6只同向的机构级异动。` +
-      `后者提高国家队介入的可能性，但只有公告或定期报告才能确认主体。</p>` +
-      `<details${sorted.length ? "" : " hidden"}><summary>查看百亿份额异动日期（${sorted.length}日）</summary>` +
+      `<li><time>${change.date}</time><span>${change.name}</span>` +
+      `<strong class="${change.delta > 0 ? "pos" : "neg"}">` +
+      `${change.delta > 0 ? "净增" : "净减"}${fmt(Math.abs(change.delta), 1)}亿份</strong></li>`).join("");
+    const emptyText = sorted.length
+      ? "红点表示单只ETF净增超过100亿份，绿点表示单只ETF净减超过100亿份。"
+      : "当前监测期没有单只ETF自身净增或净减超过100亿份的有效记录，因此图上不画异动圆点。";
+    signalBox.innerHTML = `<p><strong>标点规则：</strong>${emptyText}</p>` +
+      `<details${sorted.length ? "" : " hidden"}><summary>查看单只ETF百亿份额异动（${sorted.length}条）</summary>` +
       `<ul>${rowsHtml}</ul></details>` +
-      `<p class="term">每日份额监测起点：${eventConfig.monitoring_start}（本轮汇金公开ETF增持）。` +
-      `汇金官网另确认自2008年以来曾购入ETF，但未公开完整逐日成交明细。` +
-      `510310在2024-09-20发生份额合并，图中已按官方比例转为可比口径，不把机械减份额误报为卖出。</p>`;
+      `<p class="term">默认聚焦最近约250个交易日（约一年）；拖动图底时间轴可查看${monitoringStart}以来的历史。` +
+      `510310在2024-09-20发生份额合并，图中已按官方比例换算，不把机械减份额误报为卖出。</p>`;
   }
 
   // 基线过期提醒(>120天)
