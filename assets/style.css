@@ -93,6 +93,14 @@ h2 {
 .chart-box .chart-title { font-size: 13.5px; margin: 2px 10px 0; display: flex; justify-content: space-between; gap: 12px; }
 .chart-box .chart-title .badge { font-family: var(--mono); font-size: 12px; color: var(--red); }
 .chart-meta { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.35; }
+.chart-range-controls { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
+.chart-latest { color: var(--muted); font: 11.5px var(--mono); white-space: nowrap; }
+.chart-range-btn {
+  appearance: none; border: 1px solid var(--line); border-radius: 3px;
+  background: var(--surface); color: var(--blue); padding: 2px 7px;
+  font: 11.5px/1.4 var(--sans); cursor: pointer; white-space: nowrap;
+}
+.chart-range-btn:hover { border-color: var(--blue); }
 .chart { width: 100%; height: 300px; }
 .chart.tall { height: 340px; }
 .explain-grid, .model-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -189,7 +197,7 @@ code { font-family: var(--mono); background: var(--surface); border: 1px solid v
   .explain-grid, .model-grid, .alert-grid, .two-sided-grid, .score-grid { grid-template-columns: 1fr; }
   .section-heading { align-items: flex-start; flex-direction: column; gap: 0; padding-bottom: 8px; }
   .chart-box .chart-title { align-items: flex-start; }
-  .chart-meta { max-width: 50%; }
+  .chart-meta { max-width: 58%; }
 }
 @media (max-width: 520px) {
   .chart-grid { grid-template-columns: 1fr; }

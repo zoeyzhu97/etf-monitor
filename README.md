@@ -22,7 +22,7 @@ python3 -m http.server 8000
 ## 离线可跑的部分
 
 ```bash
-python3 -m unittest discover tests    # 25个测试，含评分组合、数据时效、买卖双向与解读回归测试
+python3 -m unittest discover tests    # 含评分、数据时效、买卖双向、解读与图表范围回归测试
 python3 scripts/daily_assessment.py   # 生成风险、修复和数据可信度评分JSON
 python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
 ```
@@ -47,8 +47,9 @@ python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
 - 首次联网运行 `python scripts/backfill_etf_shares.py`，可回补
   2023-10-23 至今的每日份额；这个日期是本轮汇金公开宣布买入ETF的
   起点，不是各基金成立日。指数回补使用 `fetch_index_daily.py`。
-- ETF图每只单独一行并带时间轴，默认显示2025-12-31至最新；向左拖动
-  可查看2023-10-23以来的历史。只在某一只ETF自身净增或净减超过100亿份
+- ETF图每只单独一行并带时间轴，默认用实际日期锁定2025-12-31至最新，
+  避免新增数据后百分比窗口停在旧日期；每张图显示真实最新日期，并提供
+  “回到最新”和“全部历史”按钮。只在某一只ETF自身净增或净减超过100亿份
   时画红/绿圆点，不合并多只ETF，也不显示普通数据点。黄色圆点标出汇金
   公开发布ETF增持公告的日期；公告披露金额时，提示框才显示金额。
 - 510310在2024-09-20实施份额合并，图表按上交所公告的0.49977589

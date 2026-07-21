@@ -136,7 +136,12 @@ async function renderEtfSection(conf) {
     const box = el("div", "chart-box");
     const title = el("div", "chart-title",
       `<span>${etf.name} <code>${etf.code}</code></span>` +
-      `<span class="chart-meta"><span class="badge"></span></span>`);
+      `<span class="chart-meta"><span class="badge"></span>` +
+      `<span class="chart-range-controls">` +
+      `<span class="chart-latest"></span>` +
+      `<button type="button" class="chart-range-btn latest-btn">回到最新</button>` +
+      `<button type="button" class="chart-range-btn all-btn">全部历史</button>` +
+      `</span></span>`);
     const chartDiv = el("div", "chart");
     box.append(title, chartDiv);
     grid.append(box);
@@ -145,6 +150,9 @@ async function renderEtfSection(conf) {
       continue;
     }
     const last = rows[rows.length - 1];
+    title.querySelector(".chart-latest").textContent = `最新 ${last.date}`;
+    title.querySelector(".latest-btn").setAttribute("aria-label", `${etf.name}回到最新日期`);
+    title.querySelector(".all-btn").setAttribute("aria-label", `${etf.name}显示全部历史`);
     if (!latestDate || last.date > latestDate) latestDate = last.date;
     const base = etf.huijin_shares_yi;
     const isInv = base !== null && last.total_shares_yi < base;
@@ -214,15 +222,16 @@ async function renderEtfSection(conf) {
       }));
     const requestedStartIndex = rows.findIndex(row => row.date >= DEFAULT_ETF_VIEW_START);
     const zoomStartIndex = requestedStartIndex >= 0 ? requestedStartIndex : 0;
-    const zoomStartPercent = rows.length > 1
-      ? (zoomStartIndex / (rows.length - 1)) * 100
-      : 0;
+    const defaultZoomStart = rows[zoomStartIndex].date;
+    const insideZoomId = `etf-${etf.code}-inside`;
+    const sliderZoomId = `etf-${etf.code}-slider`;
     chart.setOption(Object.assign(baseChartOpts(), {
       grid: { left: 58, right: 58, top: 26, bottom: 52 },
       dataZoom: [
-        { type: "inside", filterMode: "filter", start: zoomStartPercent, end: 100 },
-        { type: "slider", filterMode: "filter", height: 16, bottom: 4,
-          start: zoomStartPercent, end: 100 }
+        { id: insideZoomId, type: "inside", filterMode: "filter",
+          startValue: defaultZoomStart, endValue: last.date },
+        { id: sliderZoomId, type: "slider", filterMode: "filter", height: 16, bottom: 4,
+          startValue: defaultZoomStart, endValue: last.date }
       ],
       xAxis: { type: "category", data: rows.map(r => r.date), triggerEvent: true,
                axisLabel: {
@@ -273,6 +282,18 @@ async function renderEtfSection(conf) {
         }
       }]
     }));
+    const setDateRange = startValue => {
+      chart.setOption({ dataZoom: [
+        { id: insideZoomId, startValue, endValue: last.date },
+        { id: sliderZoomId, startValue, endValue: last.date }
+      ] });
+    };
+    title.querySelector(".latest-btn").addEventListener("click", () => {
+      setDateRange(defaultZoomStart);
+    });
+    title.querySelector(".all-btn").addEventListener("click", () => {
+      setDateRange(rows[0].date);
+    });
     chart.on("click", params => {
       if (params.componentType !== "xAxis" || !dateIndex.has(params.value)) return;
       chart.dispatchAction({
@@ -311,7 +332,8 @@ async function renderEtfSection(conf) {
     signalBox.innerHTML =
       `<details${sorted.length ? "" : " hidden"}><summary>查看单只ETF百亿份额异动（${sorted.length}条）</summary>` +
       `<ul>${rowsHtml}</ul></details>` +
-      `<p class="term">默认显示${DEFAULT_ETF_VIEW_START}至最新；向左拖动图底时间轴可查看${monitoringStart}以来的历史。` +
+      `<p class="term">默认显示${DEFAULT_ETF_VIEW_START}至最新；时间轴偏离最新日期时，点图右上角“回到最新”；` +
+      `点“全部历史”可查看${monitoringStart}以来的记录。` +
       `510310在2024-09-20发生份额合并，图中已按官方比例换算，不把机械减份额误报为卖出。</p>`;
   }
 
