@@ -26,6 +26,9 @@ MAINLAND_INDEXES = {
     "000688": ("sh000688", "2020-07-01"),
 }
 GLOBAL_INDEXES = {"TWII": "^TWII", "HSI": "^HSI"}
+# 与 event_study.INCLUDE_MARKETS 联动: 当前统计口径仅中国大陆,
+# 停止境外指数的每日抓取; 如需恢复参照样本改为 True。
+FETCH_GLOBAL_INDEXES = False
 YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
@@ -89,7 +92,7 @@ def main():
         except Exception as e:
             print(f"[失败] {code}: {e} (已有{len(existing)}条, 保持不变)", file=sys.stderr)
             failures += 1
-    for code, symbol in GLOBAL_INDEXES.items():
+    for code, symbol in (GLOBAL_INDEXES.items() if FETCH_GLOBAL_INDEXES else ()):
         existing = load_json(f"index/{code}.json", default=[])
         try:
             backfill_with_yahoo(code, symbol)

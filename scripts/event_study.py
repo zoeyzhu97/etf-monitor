@@ -14,6 +14,12 @@ from utils import load_json, save_json
 
 HORIZONS = [20, 60, 120, 250]
 N_BOOTSTRAP = 1000
+# 统计口径开关: 默认只纳入中国大陆(A股)样本。
+# 如需重新纳入台湾国安基金/香港1998年参照样本以扩大样本量,
+# 改为 ("CN", "TW", "HK") 并恢复 fetch_index_daily.py 的境外指数开关。
+INCLUDE_MARKETS = ("CN",)
+MARKET_INDEXES = {"CN": ("000001", "399001", "000688"),
+                  "TW": ("TWII",), "HK": ("HSI",)}
 
 
 def _index_map(rows):
@@ -73,11 +79,16 @@ def random_baseline(dates, closes, horizon, n=N_BOOTSTRAP, seed=42):
 
 
 def run(samples, index_data):
+    scope = "、".join(INCLUDE_MARKETS)
     results = {"buy_events": [], "baselines": {}, "summary": {},
-               "caveats": "样本量小且干预内生于暴跌，机制随时间演变；"
+               "markets_included": list(INCLUDE_MARKETS),
+               "caveats": f"当前统计口径仅含 {scope} 市场样本；"
+                          "样本量小且干预内生于暴跌，机制随时间演变；"
                           "本页仅报告历史条件分布，不构成投资建议。"}
     per_horizon_wins = {h: [] for h in HORIZONS}
     for s in samples:
+        if s.get("market") not in INCLUDE_MARKETS:
+            continue
         if s.get("kind") not in ("buy", "policy"):
             continue
         rows = index_data.get(s["index_code"])
@@ -112,7 +123,8 @@ def run(samples, index_data):
 def main():
     samples = load_json("intervention_samples.json")["samples"]
     index_data = {}
-    for code in ("000001", "399001", "000688", "TWII", "HSI"):
+    codes = [c for m in INCLUDE_MARKETS for c in MARKET_INDEXES.get(m, ())]
+    for code in codes:
         rows = load_json(f"index/{code}.json")
         if rows:
             index_data[code] = rows
