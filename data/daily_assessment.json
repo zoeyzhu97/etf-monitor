@@ -13,9 +13,9 @@
     "label": "信号尚未共同收敛",
     "plain": "四个模型没有至少3个同向，最诚实的结论是继续观察。",
     "counts": {
-      "support": 2,
+      "support": 1,
       "risk": 2,
-      "neutral": 0
+      "neutral": 1
     },
     "rule": "至少3/4个模型同向才称为共同收敛"
   },
@@ -23,21 +23,21 @@
     {
       "id": "share_flow",
       "name": "模型1 · ETF份额流向",
-      "vote": "support",
-      "title": "多数ETF总份额增加",
-      "explanation": "8/8只ETF最近一条有效记录增加，合计约增加145.1亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "vote": "neutral",
+      "title": "ETF份额方向不一致",
+      "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 8,
-        "falling_etfs": 0,
-        "net_change_yi": 145.1,
-        "latest_date": "2026-07-20",
-        "earliest_latest_date": "2026-07-20",
+        "rising_etfs": 4,
+        "falling_etfs": 4,
+        "net_change_yi": -8.39,
+        "latest_date": "2026-07-21",
+        "earliest_latest_date": "2026-07-21",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 8,
+        "consecutive_inflow_etfs": 4,
         "consecutive_outflow_etfs": 0
       }
     },
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 25,
-      "level": "观察",
+      "score": 12,
+      "level": "弱",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 25,
+          "points": 12,
           "max": 25,
-          "detail": "8/8只可比ETF"
+          "detail": "4/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
@@ -239,11 +239,11 @@
   },
   "two_sided": {
     "buy_side": {
-      "label": "买入/承接侧满足 1/3 项",
+      "label": "买入/承接侧满足 0/3 项",
       "checks": [
         {
           "label": "多数ETF份额增加",
-          "met": true
+          "met": false
         },
         {
           "label": "多数指数站上20日与60日均线",
@@ -279,7 +279,7 @@
   "action_guide": {
     "level": "等待级：证据不足",
     "why": [
-      "多数ETF总份额增加",
+      "ETF份额方向不一致",
       "多数指数跌到中短期均线下方"
     ],
     "checklist": [
