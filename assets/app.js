@@ -14,6 +14,7 @@ const EVENT_STYLE = {
   sell:   { color: "#d97b1f", label: "推算的份额减少窗口" }
 };
 const VOTE_LABEL = { support: "偏暖", risk: "警惕", neutral: "中性" };
+const DEFAULT_ETF_VIEW_START = "2025-12-31";
 const dark = matchMedia("(prefers-color-scheme: dark)").matches;
 const AXIS = dark ? "#9a9891" : "#787672";
 const GRIDLINE = dark ? "#2b2d33" : "#e3e1da";
@@ -184,18 +185,29 @@ async function renderEtfSection(conf) {
           `${fmt(Math.abs(change.delta), 1)}亿份<br>` +
           "属于机构级异动，但公开数据不能确认交易主体"
       }));
-    const zoomStartPercent = rows.length > 250
-      ? ((rows.length - 250) / (rows.length - 1)) * 100
+    const requestedStartIndex = rows.findIndex(row => row.date >= DEFAULT_ETF_VIEW_START);
+    const zoomStartIndex = requestedStartIndex >= 0 ? requestedStartIndex : 0;
+    const zoomStartPercent = rows.length > 1
+      ? (zoomStartIndex / (rows.length - 1)) * 100
       : 0;
     chart.setOption(Object.assign(baseChartOpts(), {
-      grid: { left: 58, right: 24, top: 26, bottom: 52 },
+      grid: { left: 58, right: 58, top: 26, bottom: 52 },
       dataZoom: [
-        { type: "inside", filterMode: "none", start: zoomStartPercent, end: 100 },
-        { type: "slider", filterMode: "none", height: 16, bottom: 4,
+        { type: "inside", filterMode: "filter", start: zoomStartPercent, end: 100 },
+        { type: "slider", filterMode: "filter", height: 16, bottom: 4,
           start: zoomStartPercent, end: 100 }
       ],
       xAxis: { type: "category", data: rows.map(r => r.date),
-               axisLabel: { color: AXIS, hideOverlap: true },
+               axisLabel: {
+                 color: AXIS, hideOverlap: true,
+                 showMinLabel: true, showMaxLabel: true,
+                 interval: (_index, value) => {
+                   if (value === rows[zoomStartIndex].date || value === last.date) return true;
+                   const month = Number(value.slice(5, 7));
+                   const day = Number(value.slice(8, 10));
+                   return month % 2 === 0 && day <= 3;
+                 }
+               },
                axisLine: { lineStyle: { color: GRIDLINE } } },
       yAxis: { type: "value", scale: true, name: "亿份",
                axisLabel: { color: AXIS },
@@ -203,15 +215,15 @@ async function renderEtfSection(conf) {
       tooltip: {
         trigger: "axis", confine: true,
         formatter: params => {
-          const i = params[0] ? params[0].dataIndex : 0;
-          const row = rows[i];
+          const date = params[0] ? params[0].axisValue : rows[0].date;
+          const row = rows[dateIndex.get(date) ?? 0];
           const displayed = row.chart_shares_yi;
           return `${row.date}<br>总份额 ${fmt(displayed)} 亿份`;
         }
       },
       series: [{
         type: "line", data: rows.map(r => r.chart_shares_yi), showSymbol: false,
-        lineStyle: { color: INKLINE, width: 1.8 }, itemStyle: { color: INKLINE },
+        lineStyle: { color: INKLINE, width: 2 }, itemStyle: { color: INKLINE },
         markLine: base === null ? undefined : {
           silent: true, symbol: "none",
           lineStyle: { color: "#1f5fbf", type: "dashed" },
@@ -220,7 +232,7 @@ async function renderEtfSection(conf) {
         },
         markArea: areas.length ? {
           silent: true,
-          itemStyle: { color: "rgba(210,59,59,0.055)" },
+          itemStyle: { color: "rgba(210,59,59,0.11)" },
           data: areas
         } : undefined,
         markPoint: {
@@ -264,7 +276,7 @@ async function renderEtfSection(conf) {
     signalBox.innerHTML = `<p><strong>标点规则：</strong>${emptyText}</p>` +
       `<details${sorted.length ? "" : " hidden"}><summary>查看单只ETF百亿份额异动（${sorted.length}条）</summary>` +
       `<ul>${rowsHtml}</ul></details>` +
-      `<p class="term">默认聚焦最近约250个交易日（约一年）；拖动图底时间轴可查看${monitoringStart}以来的历史。` +
+      `<p class="term">默认显示${DEFAULT_ETF_VIEW_START}至最新；向左拖动图底时间轴可查看${monitoringStart}以来的历史。` +
       `510310在2024-09-20发生份额合并，图中已按官方比例换算，不把机械减份额误报为卖出。</p>`;
   }
 
