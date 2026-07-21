@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '40 7 * * 1-5'   # UTC 07:40 = 北京时间 15:40
     - cron: '0 12 * * 1-5'   # 北京时间 20:00 兜底重试
-    - cron: '0 14 * * 1-5'   # 北京时间 22:00 最终重试
+    - cron: '0 16 * * 1-5'   # UTC 周一至周五 16:00 = 北京次日 00:00 最终重试
   workflow_dispatch:
 
 permissions:
@@ -36,7 +36,7 @@ jobs:
         run: python scripts/daily_comment.py
       - name: Check ETF data freshness after final retry
         id: freshness
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 14 * * 1-5'
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 16 * * 1-5'
         run: python scripts/check_data_freshness.py
         continue-on-error: true
       - name: Commit & push
@@ -68,5 +68,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `ETF日期滞后告警 ${new Date().toISOString().slice(0,10)}`,
-              body: process.env.FRESHNESS_MESSAGE || '北京时间22:00最终重试后ETF份额日期仍滞后。'
+              body: process.env.FRESHNESS_MESSAGE || '北京次日00:00最终重试后ETF份额日期仍滞后。'
             });
