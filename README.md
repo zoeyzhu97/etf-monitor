@@ -1,8 +1,13 @@
 # 平准基金观测站（国家队ETF监控）
 
-追踪中央汇金系（类"平准基金"）在宽基ETF上的买入与卖出：每日抓取ETF总份额，
-与基金定期报告披露的汇金持仓对比，"倒挂"即确认减持；叠加指数上的
-政策底/恐慌底事件标注与事件研究统计。纯静态站点 + GitHub Actions，零服务器成本。
+仅以中国大陆A股为范围，观察中央汇金系（类“平准基金”）相关宽基ETF：
+每日抓取ETF市场总份额，与基金定期报告披露的历史汇金持仓参考线比较；
+叠加上证、深证、科创50上的政策/价格低点标注、纯A股事件研究和四模型会诊。
+纯静态站点 + GitHub Actions，零服务器成本。
+
+重要口径：ETF总份额变化来自全市场，不是中央汇金逐日持仓。总份额低于
+历史汇金持仓参考线，只表示数学上的“低于历史参考线”，不再写成“确认减持”；
+最终持仓变化要等基金定期报告确认。
 
 ## 本地预览（用种子数据即可看到页面效果）
 
@@ -17,8 +22,9 @@ python3 -m http.server 8000
 ## 离线可跑的部分
 
 ```bash
-python3 -m unittest discover tests    # 12个测试, 含稀疏历史不得误报“单日变化”的回归测试
+python3 -m unittest discover tests    # 18个测试，含纯A股口径、买卖双向与模型门槛回归测试
 python3 scripts/daily_comment.py      # 用现有历史数据生成当日解读
+python3 scripts/daily_assessment.py   # 生成今日四模型会诊JSON
 ```
 
 ## 部署为"永久网页"
@@ -33,6 +39,8 @@ python3 scripts/daily_comment.py      # 用现有历史数据生成当日解读
 
 - ETF 份额每日更新首先查询上交所/深交所最近 7 天披露，并按返回记录的
   实际日期落盘；只有官方源失败时才使用东方财富 f84，且标记为未核验。
+- 深交所159919嘉实沪深300ETF直接使用 `fund_jjgm` 基金规模报表的
+  `current_size`（万份）字段，来源标记为 `szse_official`。
 - 上交所 SCALE（亿元）优先除以同日单位净值反推亿份，来源标记为
   `sse_official_derived_nav`。净值不可得时使用未复权收盘价，标记为
   `sse_official_derived_px`；该路径会受到 ETF 折溢价影响，误差通常约
@@ -52,6 +60,8 @@ python3 scripts/daily_comment.py      # 用现有历史数据生成当日解读
 - 事件库：`data/bottom_events.json`（图上标注）与
   `data/intervention_samples.json`（事件研究样本），标记
   `"verify": true` 的条目需核实后转为 false。
+- 统计范围：`scripts/event_study.py` 与 `scripts/daily_assessment.py`
+  都固定为 `CN`；即使样本档案中留有港台历史条目，也不会进入计算或页面。
 
 ## 目录结构
 
@@ -62,14 +72,17 @@ scripts/backfill_etf_shares.py 回补2026-01-23至今的ETF份额历史
 scripts/fetch_index_daily.py指数日线回补与增量（akshare）
 scripts/daily_comment.py    规则引擎每日解读
 scripts/event_study.py      事件研究（前瞻收益/回撤/bootstrap基准）
+scripts/daily_assessment.py 纯A股四模型会诊（份额/趋势/压力/历史先验）
 scripts/import_history.py   历史份额CSV手动导入兜底
 data/                       全部数据与配置（JSON）
+report.html                 永久在线的模型评估报告
+MODEL_ASSESSMENT_REPORT.md  可下载/审阅的报告文本
 tests/                      离线单元测试
 .github/workflows/daily.yml 每日自动更新流水线
 ```
 
 ## 免责声明
 
-个人研究工具。份额变化并非全部来自国家队；倒挂差额仅为减持下限；
-事件研究样本量小且存在内生性偏差；历史规律不保证未来重复。
-本站全部内容不构成投资建议。
+个人研究工具。份额变化不能单独证明国家队买卖；事件研究只有7个纯A股样本，
+存在内生性偏差；历史规律不保证未来重复。页面提供通用观察与风险提示，
+不了解用户个人财务情况，不提供个性化买卖指令或投资建议。

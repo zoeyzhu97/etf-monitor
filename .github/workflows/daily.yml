@@ -31,6 +31,8 @@ jobs:
         run: python scripts/daily_comment.py
       - name: Event study
         run: python scripts/event_study.py || echo "事件研究跳过(指数数据未就绪)"
+      - name: Daily multi-model assessment
+        run: python scripts/daily_assessment.py
       - name: Commit & push
         run: |
           git config user.name "etf-monitor-bot"

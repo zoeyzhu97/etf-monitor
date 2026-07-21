@@ -10,6 +10,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
 from utils import gap_to_baseline  # noqa: E402
 from daily_comment import build_comment, _trend  # noqa: E402
 from event_study import forward_return, max_drawdown_after, random_baseline  # noqa: E402
+from daily_assessment import (assess_share_flow, assess_trend, assess_history,
+                              build_assessment, build_two_sided_view, combine_models,
+                              wilson_interval)  # noqa: E402
 
 
 def mk_rows(vals, start_day=1):
@@ -101,6 +104,58 @@ class TestEventStudy(unittest.TestCase):
         b = random_baseline(self.dates, self.closes, 3, n=200)
         self.assertIn("win_rate", b)
         self.assertTrue(0 <= b["win_rate"] <= 1)
+
+
+class TestDailyAssessment(unittest.TestCase):
+    def test_share_flow_never_claims_state_buyer(self):
+        model = assess_share_flow({
+            "a": mk_rows([10, 12]), "b": mk_rows([10, 11]),
+            "c": mk_rows([10, 9]), "d": mk_rows([10, 13]),
+        })
+        self.assertEqual(model["vote"], "support")
+        self.assertIn("不能证明买方就是国家队", model["explanation"])
+
+    def test_trend_three_mainland_indexes(self):
+        rows = [{"date": f"2026-01-{i:02d}", "close": 100 + i}
+                for i in range(1, 29)]
+        model = assess_trend({"000001": rows, "399001": rows, "000688": rows})
+        self.assertEqual(model["vote"], "support")
+
+    def test_small_sample_interval_is_wide(self):
+        lo, hi = wilson_interval(6, 7)
+        self.assertLess(lo, 0.50)
+        self.assertGreater(hi, 0.95)
+
+    def test_history_requires_cn_scope(self):
+        conf = {"baseline_date": "2025-12-31", "etfs": []}
+        rows = [{"date": f"2026-01-{i:02d}", "close": 100 + i}
+                for i in range(1, 29)]
+        assessment = build_assessment(
+            conf, {}, {"000001": rows, "399001": rows, "000688": rows,
+                       "TWII": rows},
+            {"markets_included": ["CN", "TW"],
+             "summary": {"20": {"n": 99, "win_rate": 0.99}}})
+        self.assertEqual(assessment["market_scope"], "CN")
+        trend_codes = assessment["models"][1]["metrics"].keys()
+        self.assertNotIn("TWII", trend_codes)
+        self.assertEqual(assessment["models"][3]["vote"], "neutral")
+
+    def test_convergence_needs_three_votes(self):
+        models = [{"vote": v} for v in
+                  ("support", "support", "neutral", "risk")]
+        self.assertEqual(combine_models(models)["state"], "mixed")
+
+    def test_buy_and_sell_sides_are_both_counted(self):
+        models = [
+            {"id": "share_flow", "vote": "support"},
+            {"id": "trend", "vote": "risk"},
+            {"id": "stress", "vote": "risk"},
+            {"id": "history", "vote": "support"},
+        ]
+        view = build_two_sided_view(models)
+        self.assertIn("1/3", view["buy_side"]["label"])
+        self.assertIn("2/3", view["sell_side"]["label"])
+        self.assertIn("不虚构卖出胜率模型", view["history_boundary"])
 
 
 if __name__ == "__main__":
