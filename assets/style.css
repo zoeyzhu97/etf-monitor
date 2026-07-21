@@ -60,6 +60,19 @@ h2 {
 .card .v.red { color: var(--red); }
 .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 16px; }
 .chart-grid.one-col { grid-template-columns: 1fr; }
+.signal-summary {
+  margin: 0 0 14px; padding: 12px 15px; background: var(--surface);
+  border: 1px solid var(--line); border-left: 4px solid var(--blue); font-size: 13px;
+}
+.signal-summary p { margin: 3px 0; }
+.signal-summary details { margin: 8px 0; }
+.signal-summary summary { cursor: pointer; color: var(--blue); }
+.signal-summary ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.signal-summary li {
+  display: grid; grid-template-columns: 92px minmax(0, 1fr) auto;
+  gap: 10px; padding: 4px 0; border-top: 1px solid var(--line);
+}
+.signal-summary time { color: var(--muted); font-family: var(--mono); }
 .chart-box {
   min-width: 0; overflow: hidden;
   background: var(--surface); border: 1px solid var(--line); padding: 10px 6px 2px;
@@ -68,7 +81,7 @@ h2 {
 .chart-box .chart-title .badge { font-family: var(--mono); font-size: 12px; color: var(--red); }
 .chart-meta { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.35; }
 .source-note { color: var(--muted); font-size: 10.5px; white-space: nowrap; }
-.chart { width: 100%; height: 260px; }
+.chart { width: 100%; height: 300px; }
 .chart.tall { height: 340px; }
 .explain-grid, .model-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .explain-card, .model-card, .star-note, .action-guide, .verdict {
@@ -172,4 +185,6 @@ code { font-family: var(--mono); background: var(--surface); border: 1px solid v
   .h-note { display: block; margin: 4px 0 0; }
   table.study-table { font-size: 11px; }
   table.study-table th, table.study-table td { padding: 5px 4px; }
+  .signal-summary li { grid-template-columns: 86px 1fr; }
+  .signal-summary li strong { grid-column: 2; }
 }

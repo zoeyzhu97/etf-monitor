@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """离线单元测试: python -m unittest discover tests"""
+import datetime
 import sys
 import os
 import unittest
@@ -14,6 +15,8 @@ from daily_assessment import (assess_share_flow, assess_trend, assess_history,
                               build_assessment, build_scorecard,
                               build_two_sided_view, combine_models,
                               _recent_streak, wilson_interval)  # noqa: E402
+from fetch_etf_shares import _parse_sse_share_payload  # noqa: E402
+from backfill_etf_shares import _date_chunks  # noqa: E402
 
 
 def mk_rows(vals, start_day=1):
@@ -31,6 +34,31 @@ class TestInversion(unittest.TestCase):
         gap, inv = gap_to_baseline(100.0, None)
         self.assertIsNone(gap)
         self.assertFalse(inv)
+
+
+class TestOfficialShareBackfill(unittest.TestCase):
+    def test_parse_sse_direct_total_shares(self):
+        payload = {"result": [
+            {"STAT_DATE": "2026-01-05", "SEC_CODE": "510300",
+             "TOT_VOL": "8905818.77"},
+            {"STAT_DATE": "2026-01-05", "SEC_CODE": "999999",
+             "TOT_VOL": "10000"},
+        ]}
+        rows = _parse_sse_share_payload(payload, codes=["510300"])
+        self.assertEqual(len(rows), 1)
+        self.assertAlmostEqual(rows[0]["total_shares_yi"], 890.581877)
+        self.assertEqual(rows[0]["source"], "sse_official_shares")
+        self.assertTrue(rows[0]["verified"])
+
+    def test_szse_backfill_uses_short_contiguous_chunks(self):
+        start = datetime.date(2023, 10, 23)
+        end = datetime.date(2024, 4, 30)
+        chunks = list(_date_chunks(start, end, chunk_days=80))
+        self.assertEqual(chunks[0][0], start)
+        self.assertEqual(chunks[-1][1], end)
+        for current, following in zip(chunks, chunks[1:]):
+            self.assertEqual(current[1] + datetime.timedelta(days=1),
+                             following[0])
 
 
 class TestComment(unittest.TestCase):

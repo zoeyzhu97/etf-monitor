@@ -5,11 +5,12 @@
   1) 上交所/深交所官方披露。查询最近 7 天并使用实际披露日期；
   2) 东方财富 f84，仅在官方源失败时兜底，记录一律 verified=False。
 
-上交所 CKLSGM 披露的是基金规模（亿元），优先除以同日单位净值反推
-亿份；净值不可得时才使用未复权收盘价，并用不同 source 标签明确区分。
+上交所 ETFGM 披露的是每日总份额（万份），直接换算为亿份；旧的
+CKLSGM 规模/净值反推路径只在直接份额接口不可用时兜底。
 任何来源都不允许把空值或 0 写入历史。
 """
 import datetime
+import functools
 import math
 import re
 import sys
@@ -26,6 +27,7 @@ EASTMONEY_URLS = (
 EASTMONEY_NAV_URL = "https://api.fund.eastmoney.com/f10/lsjz"
 EASTMONEY_KLINE_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
 SSE_SCALE_URL = "https://query.sse.com.cn/commonQuery.do"
+SSE_SHARES_SQL_ID = "COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L"
 SZSE_REPORT_URL = "https://www.szse.cn/api/report/ShowReport/data"
 
 HEADERS = {
@@ -166,6 +168,51 @@ def fetch_sse_scale_rows(code: str, start_date, end_date):
     return sorted(rows, key=lambda item: item["date"])
 
 
+def _parse_sse_share_payload(payload, codes=None):
+    """解析上交所 ETF 总份额报表；TOT_VOL 单位为万份。"""
+    wanted = set(codes or [])
+    rows = []
+    for row in (payload or {}).get("result") or []:
+        code = str(row.get("SEC_CODE", "")).strip()
+        if wanted and code not in wanted:
+            continue
+        day, raw_volume = row.get("STAT_DATE"), row.get("TOT_VOL")
+        if not code or not day or raw_volume in (None, "", "-", 0, "0"):
+            continue
+        shares_yi = float(str(raw_volume).replace(",", "")) / 1e4
+        if SANITY_MIN_YI <= shares_yi <= SANITY_MAX_YI:
+            rows.append({
+                "code": code,
+                "date": day,
+                "total_shares_yi": shares_yi,
+                "source": "sse_official_shares",
+                "verified": True,
+            })
+    return sorted(rows, key=lambda item: (item["date"], item["code"]))
+
+
+@functools.lru_cache(maxsize=64)
+def _fetch_sse_share_payload_for_date(day_iso):
+    params = {
+        "isPagination": "true",
+        "sqlId": SSE_SHARES_SQL_ID,
+        "pageHelp.cacheSize": 1,
+        "pageHelp.pageSize": 2000,
+        "pageHelp.pageNo": 1,
+        "pageHelp.beginPage": 1,
+        "pageHelp.endPage": 1,
+        "STAT_DATE": day_iso,
+    }
+    return _get_json(SSE_SCALE_URL, params, SSE_HEADERS)
+
+
+def fetch_sse_share_rows_for_date(as_of, codes=None):
+    """读取某日上交所全部 ETF 的直接总份额，再按代码筛选。"""
+    day = _as_date(as_of).isoformat()
+    return _parse_sse_share_payload(
+        _fetch_sse_share_payload_for_date(day), codes=codes)
+
+
 def fetch_szse_share_rows(code: str, start_date, end_date):
     """深交所基金规模报表，current_size 单位为万份。"""
     start_date, end_date = _as_date(start_date), _as_date(end_date)
@@ -254,8 +301,8 @@ def fetch_official(code: str, exchange: str, as_of=None):
     深交所实测请求：
     https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=fund_jjgm&TABKEY=tab1&PAGENO=1&txtDm=159919&txtStart=2026-07-14&txtEnd=2026-07-21
 
-    上交所实测请求：
-    https://query.sse.com.cn/commonQuery.do?isPagination=true&sqlId=COMMON_JJZWZ_JJLB_JJXQ_JJGM_CKLSGM_L&pageHelp.pageSize=500&pageHelp.pageNo=1&FUND_CODE=510300&START_DATE=20260714&END_DATE=20260721
+    上交所实测请求（TOT_VOL 为万份）：
+    https://query.sse.com.cn/commonQuery.do?isPagination=true&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&pageHelp.pageSize=2000&pageHelp.pageNo=1&STAT_DATE=2026-07-20
     """
     end_date = _as_date(as_of or datetime.date.today())
     start_date = end_date - datetime.timedelta(days=OFFICIAL_LOOKBACK_DAYS)
@@ -263,8 +310,19 @@ def fetch_official(code: str, exchange: str, as_of=None):
         if exchange == "SZ":
             rows = fetch_szse_share_rows(code, start_date, end_date)
         else:
-            scales = fetch_sse_scale_rows(code, start_date, end_date)
-            rows = derive_sse_share_rows(code, scales)
+            # 直接份额报表按单日查询；倒序命中最近披露日后即可停止。
+            rows = []
+            for offset in range(OFFICIAL_LOOKBACK_DAYS + 1):
+                day = end_date - datetime.timedelta(days=offset)
+                if day.weekday() >= 5:
+                    continue
+                rows = fetch_sse_share_rows_for_date(day, codes=[code])
+                if rows:
+                    break
+            # 旧规模接口保留为官方兜底，避免交易所直接接口短时故障。
+            if not rows:
+                scales = fetch_sse_scale_rows(code, start_date, end_date)
+                rows = derive_sse_share_rows(code, scales)
         if not rows:
             return None, None, None
         latest = max(rows, key=lambda item: item["date"])

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>A股国家队ETF观察</title>
-<link rel="stylesheet" href="assets/style.css?v=20260721-score1">
+<link rel="stylesheet" href="assets/style.css?v=20260721-huijin1">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -33,9 +33,10 @@
   </section>
 
   <section aria-labelledby="h-etf">
-    <h2 id="h-etf">ETF份额怎么变？ <span class="h-note">红色区域 = ETF市场总份额低于汇金历史持有参考线，需要定期报告确认原因</span></h2>
-    <p class="lead">折线向上表示这只ETF总份额增加，向下表示减少。份额变化来自全市场投资者，不能自动等同于国家队买卖。嘉实沪深300ETF（159919）每日份额直接读取<a href="https://fund.szse.cn/marketdata/fundslist/index.html" target="_blank" rel="noopener">深交所基金规模报表</a>。</p>
-    <div id="etf-charts" class="chart-grid"></div>
+    <h2 id="h-etf">ETF份额怎么变？ <span class="h-note">蓝色菱形=汇金公开确认 · 红/绿圆点=8只合计净增/净减超过100亿份</span></h2>
+    <p class="lead">每只ETF单独一行，可拖动图底时间轴查看历史。红色区域表示市场总份额低于汇金历史持有参考线，最终持仓仍要等基金定期报告确认。</p>
+    <div id="etf-signal-summary" class="signal-summary"><p>正在核对国家队事件与百亿份额异动…</p></div>
+    <div id="etf-charts" class="chart-grid one-col"></div>
   </section>
 
   <section aria-labelledby="h-index">
@@ -60,6 +61,6 @@
   本站只提供通用观察和风险提示，不了解你的资金用途、期限与承受亏损能力，<strong>不构成个性化买卖指令或投资建议</strong>。</p>
   <p id="baseline-warn" class="warn" hidden></p>
 </footer>
-<script src="assets/app.js?v=20260721-score1"></script>
+<script src="assets/app.js?v=20260721-huijin1"></script>
 </body>
 </html>
