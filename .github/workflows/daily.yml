@@ -27,12 +27,12 @@ jobs:
         continue-on-error: true
       - name: Fetch index daily (incremental)
         run: python scripts/fetch_index_daily.py || echo "指数更新失败, 保留旧数据"
-      - name: Daily comment
-        run: python scripts/daily_comment.py
       - name: Event study
         run: python scripts/event_study.py || echo "事件研究跳过(指数数据未就绪)"
       - name: Daily multi-model assessment
         run: python scripts/daily_assessment.py
+      - name: Daily comment
+        run: python scripts/daily_comment.py
       - name: Commit & push
         run: |
           git config user.name "etf-monitor-bot"

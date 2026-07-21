@@ -68,7 +68,7 @@ class TestComment(unittest.TestCase):
     def test_new_inversion(self):
         rows = mk_rows([740.0, 685.35], start_day=21)
         txt = build_comment("2026-01-22", self.ETFS, {"510300": rows})
-        self.assertIn("新出现倒挂", txt)
+        self.assertIn("首次低于历史参考线", txt)
         self.assertIn("49.8", txt)
 
     def test_quiet_day(self):
@@ -103,6 +103,28 @@ class TestComment(unittest.TestCase):
         self.assertEqual(_trend(mk_rows([10, 9, 8, 7, 6, 5])), "out")
         self.assertEqual(_trend(mk_rows([1, 2, 3, 4, 5, 6])), "in")
         self.assertIsNone(_trend(mk_rows([1, 2, 1, 2, 1, 2])))
+
+    def test_comment_combines_models_into_interpretation(self):
+        rows = mk_rows([740.0, 720.0], start_day=19)
+        assessment = {
+            "as_of": "2026-01-20",
+            "models": [
+                {"id": "share_flow", "vote": "support",
+                 "explanation": "多数ETF份额增加。"},
+                {"id": "trend", "vote": "risk",
+                 "explanation": "多数指数仍在均线下方。"},
+                {"id": "stress", "vote": "risk",
+                 "explanation": "恐慌压力仍高。"},
+            ],
+            "verdict": {"counts": {"support": 1, "risk": 2}},
+            "scorecard": {"data_confidence": {"issues": ["参考线过期"]}},
+        }
+        txt = build_comment("2026-01-20", self.ETFS,
+                            {"510300": rows}, assessment=assessment)
+        self.assertIn("先看结论", txt)
+        self.assertIn("有资金在接", txt)
+        self.assertIn("接下来重点观察", txt)
+        self.assertIn("参考线过期", txt)
 
 
 class TestEventStudy(unittest.TestCase):

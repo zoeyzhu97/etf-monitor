@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>A股国家队ETF观察</title>
-<link rel="stylesheet" href="assets/style.css?v=20260721-chart4">
+<link rel="stylesheet" href="assets/style.css?v=20260721-comment2">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -40,7 +40,14 @@
   </section>
 
   <section aria-labelledby="h-index">
-    <h2 id="h-index">历史上政策和低点在什么位置？ <span class="h-note">蓝=公开增持 · 紫=政策出台 · 红=事后价格低点 · 橙=推算的份额减少窗口</span></h2>
+    <h2 id="h-index">历史上政策和低点在什么位置？
+      <span class="h-note event-legend">
+        <span>蓝<i class="legend-dot buy"></i>=公开增持</span><b>·</b>
+        <span>紫<i class="legend-dot policy"></i>=政策出台</span><b>·</b>
+        <span>红<i class="legend-dot trough"></i>=事后价格低点</span><b>·</b>
+        <span>橙<i class="legend-dot sell"></i>=推算的份额减少窗口</span>
+      </span>
+    </h2>
     <p class="lead">红点是事后回看得到的价格低点，不是当天就能提前知道的预测信号。</p>
     <div id="index-charts" class="chart-grid one-col"></div>
   </section>
@@ -61,6 +68,6 @@
   本站只提供通用观察和风险提示，不了解你的资金用途、期限与承受亏损能力，<strong>不构成个性化买卖指令或投资建议</strong>。</p>
   <p id="baseline-warn" class="warn" hidden></p>
 </footer>
-<script src="assets/app.js?v=20260721-chart4"></script>
+<script src="assets/app.js?v=20260721-comment2"></script>
 </body>
 </html>

@@ -22,9 +22,9 @@ python3 -m http.server 8000
 ## 离线可跑的部分
 
 ```bash
-python3 -m unittest discover tests    # 22个测试，含评分组合、数据时效、买卖双向与模型门槛回归测试
-python3 scripts/daily_comment.py      # 用现有历史数据生成当日解读
+python3 -m unittest discover tests    # 25个测试，含评分组合、数据时效、买卖双向与解读回归测试
 python3 scripts/daily_assessment.py   # 生成风险、修复和数据可信度评分JSON
+python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
 ```
 
 ## 部署为"永久网页"

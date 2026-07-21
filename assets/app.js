@@ -270,10 +270,7 @@ async function renderEtfSection(conf) {
       `<li><time>${change.date}</time><span>${change.name}</span>` +
       `<strong class="${change.delta > 0 ? "pos" : "neg"}">` +
       `${change.delta > 0 ? "净增" : "净减"}${fmt(Math.abs(change.delta), 1)}亿份</strong></li>`).join("");
-    const emptyText = sorted.length
-      ? "红点表示单只ETF净增超过100亿份，绿点表示单只ETF净减超过100亿份。"
-      : "当前监测期没有单只ETF自身净增或净减超过100亿份的有效记录，因此图上不画异动圆点。";
-    signalBox.innerHTML = `<p><strong>标点规则：</strong>${emptyText}</p>` +
+    signalBox.innerHTML =
       `<details${sorted.length ? "" : " hidden"}><summary>查看单只ETF百亿份额异动（${sorted.length}条）</summary>` +
       `<ul>${rowsHtml}</ul></details>` +
       `<p class="term">默认显示${DEFAULT_ETF_VIEW_START}至最新；向左拖动图底时间轴可查看${monitoringStart}以来的历史。` +
@@ -459,6 +456,38 @@ function humanizeComment(md) {
     .replace(/倒挂/g, "低于历史参考线")
     .replace(/减持下限/g, "待确认差额");
 }
+function renderCommentMarkdown(md) {
+  const escapeHtml = value => value.replace(/[&<>]/g, char =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]);
+  const inline = value => escapeHtml(value)
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  const out = [];
+  let listOpen = false;
+  const closeList = () => {
+    if (listOpen) out.push("</ul>");
+    listOpen = false;
+  };
+  for (const raw of humanizeComment(md).split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) {
+      closeList();
+    } else if (line.startsWith("# ")) {
+      closeList();
+      out.push(`<h3>${inline(line.slice(2))}</h3>`);
+    } else if (line.startsWith("- ")) {
+      if (!listOpen) {
+        out.push("<ul>");
+        listOpen = true;
+      }
+      out.push(`<li>${inline(line.slice(2))}</li>`);
+    } else {
+      closeList();
+      out.push(`<p>${inline(line)}</p>`);
+    }
+  }
+  closeList();
+  return out.join("");
+}
 async function renderComments() {
   const manifest = await fetchJSON("data/comments/manifest.json");
   if (!manifest || !manifest.length) return;
@@ -467,13 +496,7 @@ async function renderComments() {
   for (const date of manifest.slice(0, 10)) {
     const md = await fetchText(`data/comments/${date}.md`);
     if (!md) continue;
-    const html = humanizeComment(md)
-      .replace(/^# (.*)$/gm, "<h3>$1</h3>")
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/^- (.*)$/gm, "<li>$1</li>")
-      .replace(/(<li>[\s\S]*?<\/li>)(?![\s\S]*<li>)/, "<ul>$1</ul>")
-      .split(/\n{2,}/).map(p => /<h3|<ul|<li/.test(p) ? p : `<p>${p}</p>`).join("");
-    wrap.append(el("article", "comment", html));
+    wrap.append(el("article", "comment", renderCommentMarkdown(md)));
   }
 }
 
