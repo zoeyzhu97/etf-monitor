@@ -24,6 +24,22 @@ const dark = matchMedia("(prefers-color-scheme: dark)").matches;
 const AXIS = dark ? "#9a9891" : "#787672";
 const GRIDLINE = dark ? "#2b2d33" : "#e3e1da";
 const INKLINE = dark ? "#c9c8c2" : "#44454a";
+const chartInstances = [];
+let resizeFrame = null;
+
+function registerChart(chart) {
+  chartInstances.push(chart);
+  return chart;
+}
+
+function resizeAllCharts() {
+  if (resizeFrame !== null) cancelAnimationFrame(resizeFrame);
+  resizeFrame = requestAnimationFrame(() => {
+    chartInstances.forEach(chart => chart.resize());
+    resizeFrame = null;
+  });
+}
+window.addEventListener("resize", resizeAllCharts, { passive: true });
 
 async function fetchJSON(path) {
   try {
@@ -102,10 +118,11 @@ async function renderEtfSection(conf) {
         }
       });
     }
-    const chart = echarts.init(chartDiv, null, { renderer: "svg" });
+    const chart = registerChart(echarts.init(chartDiv, null, { renderer: "svg" }));
     chart.setOption(Object.assign(baseChartOpts(), {
       xAxis: { type: "category", data: rows.map(r => r.date),
-               axisLabel: { color: AXIS }, axisLine: { lineStyle: { color: GRIDLINE } } },
+               axisLabel: { color: AXIS, hideOverlap: true },
+               axisLine: { lineStyle: { color: GRIDLINE } } },
       yAxis: { type: "value", scale: true, name: "亿份",
                axisLabel: { color: AXIS },
                splitLine: { lineStyle: { color: GRIDLINE } } },
@@ -140,6 +157,10 @@ async function renderEtfSection(conf) {
       }]
     }));
   }
+
+  // 第一张图初始化时网格里还只有一张卡片，宽度会暂时占满整行。
+  // 所有卡片加入后统一重算，避免SVG沿用旧宽度并溢出到相邻图表。
+  resizeAllCharts();
 
   const mk = (k, v, red) => {
     const c = el("div", "card");
@@ -257,7 +278,7 @@ async function renderIndexSection() {
                        (ev.verify ? "<br><i>（日期/点位待核实）</i>" : "")
         };
       }).filter(Boolean);
-    const chart = echarts.init(chartDiv, null, { renderer: "svg" });
+    const chart = registerChart(echarts.init(chartDiv, null, { renderer: "svg" }));
     chart.setOption(Object.assign(baseChartOpts(), {
       tooltip: {
         trigger: "axis", confine: true,
@@ -269,7 +290,8 @@ async function renderIndexSection() {
       },
       dataZoom: [{ type: "inside" }, { type: "slider", height: 16, bottom: 4 }],
       xAxis: { type: "category", data: rows.map(r => r.date),
-               axisLabel: { color: AXIS }, axisLine: { lineStyle: { color: GRIDLINE } } },
+               axisLabel: { color: AXIS, hideOverlap: true },
+               axisLine: { lineStyle: { color: GRIDLINE } } },
       yAxis: { type: "value", scale: true,
                axisLabel: { color: AXIS }, splitLine: { lineStyle: { color: GRIDLINE } } },
       series: [{
@@ -283,6 +305,7 @@ async function renderIndexSection() {
       }]
     }));
   }
+  resizeAllCharts();
 }
 
 /* ---------- 事件研究结果 ---------- */

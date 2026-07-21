@@ -59,7 +59,10 @@ h2 {
 .card .v.red { color: var(--red); }
 .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 16px; }
 .chart-grid.one-col { grid-template-columns: 1fr; }
-.chart-box { background: var(--surface); border: 1px solid var(--line); padding: 10px 6px 2px; }
+.chart-box {
+  min-width: 0; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); padding: 10px 6px 2px;
+}
 .chart-box .chart-title { font-size: 13.5px; margin: 2px 10px 0; display: flex; justify-content: space-between; gap: 12px; }
 .chart-box .chart-title .badge { font-family: var(--mono); font-size: 12px; color: var(--red); }
 .chart-meta { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.35; }
