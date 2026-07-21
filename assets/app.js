@@ -108,6 +108,8 @@ function normalizeShareRows(code, rows, adjustments) {
 async function renderEtfSection(conf) {
   const grid = document.getElementById("etf-charts");
   const cards = document.getElementById("cards");
+  const eventConfig = (await fetchJSON("data/huijin_etf_events.json")) ||
+    { events: [] };
   const adjustments = (await fetchJSON("data/share_adjustments.json")) || [];
   const historyPairs = await Promise.all(conf.etfs.map(async etf =>
     [etf.code, normalizeShareRows(etf.code,
@@ -168,6 +170,31 @@ async function renderEtfSection(conf) {
     }
     const chart = registerChart(echarts.init(chartDiv, null, { renderer: "svg" }));
     const dateIndex = new Map(rows.map((row, index) => [row.date, index]));
+    const officialDisplayEvents = (eventConfig.events || [])
+      .filter(event => event.type === "confirmed_buy" &&
+        event.date >= rows[0].date && event.date <= rows[rows.length - 1].date &&
+        (!event.etf_codes || event.etf_codes.includes(etf.code)))
+      .map(event => {
+        const eventRow = rows.find(row => row.date >= event.date);
+        return eventRow ? { event, eventRow } : null;
+      }).filter(Boolean);
+    const officialByDate = new Map();
+    for (const item of officialDisplayEvents) {
+      const items = officialByDate.get(item.eventRow.date) || [];
+      items.push(item.event);
+      officialByDate.set(item.eventRow.date, items);
+    }
+    const officialMarks = officialDisplayEvents.map(({ event, eventRow }) => {
+        const amountLine = event.amount_text ? `<br>公开买入：${event.amount_text}` : "";
+        return {
+          coord: [eventRow.date, eventRow.chart_shares_yi],
+          symbol: "circle", symbolSize: 14,
+          itemStyle: { color: "#d4a000", borderColor: "#745900", borderWidth: 1 },
+          label: { show: false },
+          tooltipText: `${event.date}<br><strong>公开ETF增持公告</strong><br>` +
+            `${event.title}${amountLine}`
+        };
+      });
     const changeMarks = largeChanges
       .filter(change => change.code === etf.code && dateIndex.has(change.date))
       .map(change => ({
@@ -219,7 +246,11 @@ async function renderEtfSection(conf) {
           const date = params[0] ? params[0].axisValue : rows[0].date;
           const row = rows[dateIndex.get(date) ?? 0];
           const displayed = row.chart_shares_yi;
-          return `${row.date}<br>总份额 ${fmt(displayed)} 亿份`;
+          const notices = (officialByDate.get(row.date) || []).map(event =>
+            `<br><strong>公开ETF增持公告</strong><br>${event.title}` +
+            (event.amount_text ? `<br>公开买入：${event.amount_text}` : "")
+          ).join("");
+          return `${row.date}<br>总份额 ${fmt(displayed)} 亿份${notices}`;
         }
       },
       series: [{
@@ -237,7 +268,7 @@ async function renderEtfSection(conf) {
           data: areas
         } : undefined,
         markPoint: {
-          data: changeMarks,
+          data: [...changeMarks, ...officialMarks],
           tooltip: { formatter: p => p.data.tooltipText }
         }
       }]

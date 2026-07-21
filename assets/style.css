@@ -9,6 +9,7 @@
   --blue: #1f5fbf;
   --red: #d23b3b;
   --orange: #d97b1f;
+  --yellow: #d4a000;
   --violet: #5b48b0;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   --serif: "Songti SC", "Noto Serif SC", "SimSun", serif;
@@ -55,6 +56,7 @@ h2 {
   border-radius: 50%; vertical-align: 1px;
 }
 .legend-dot.buy { background: var(--blue); }
+.legend-dot.official-buy { background: var(--yellow); }
 .legend-dot.policy { background: var(--violet); }
 .legend-dot.trough { background: var(--red); }
 .legend-dot.sell { background: var(--orange); }
