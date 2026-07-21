@@ -187,58 +187,46 @@ async function renderEtfSection(conf) {
   }
 }
 
-/* ---------- 小白版多模型会诊 ---------- */
+/* ---------- 今日评分 ---------- */
 function renderAssessment(data) {
   const wrap = document.getElementById("assessment");
   if (!data || data.market_scope !== "CN") {
-    wrap.innerHTML = '<p class="empty">今日评估尚未生成，或统计口径不是纯中国大陆A股，页面已停止展示。</p>';
+    wrap.innerHTML = '<p class="empty">今日评估暂不可用。</p>';
     return;
   }
   wrap.innerHTML = "";
-  const verdict = el("article", `verdict ${data.verdict.state}`);
-  verdict.innerHTML = `<p class="verdict-k">${data.market_scope_label} · 数据截至 ${data.as_of || "—"}</p>` +
-    `<h3>${data.verdict.label}</h3><p>${data.verdict.plain}</p>` +
-    `<p class="rule">判定规则：${data.verdict.rule}。当前：偏暖${data.verdict.counts.support}、` +
-    `警惕${data.verdict.counts.risk}、中性${data.verdict.counts.neutral}。</p>`;
-  wrap.append(verdict);
-
-  const modelGrid = el("div", "model-grid");
-  for (const model of data.models || []) {
-    const card = el("article", `model-card ${model.vote}`);
-    card.innerHTML = `<div class="model-head"><h3>${model.name}</h3>` +
-      `<span class="vote">${VOTE_LABEL[model.vote] || model.vote}</span></div>` +
-      `<p class="model-title">${model.title}</p><p>${model.explanation}</p>`;
-    modelGrid.append(card);
+  const scores = data.scorecard;
+  if (!scores) {
+    wrap.innerHTML = '<p class="empty">评分正在生成，请稍后刷新。</p>';
+    return;
   }
-  wrap.append(modelGrid);
 
-  const sides = el("div", "two-sided-grid");
-  for (const [key, side] of Object.entries({
-    buy: data.two_sided.buy_side,
-    sell: data.two_sided.sell_side
-  })) {
-    const card = el("article", `side-card ${key}`);
-    card.innerHTML = `<h3>${side.label}</h3><ul>` +
-      side.checks.map(item => `<li class="${item.met ? "met" : "not-met"}">` +
-        `${item.met ? "✓" : "○"} ${item.label}</li>`).join("") +
-      `</ul><p class="term">${side.meaning}</p>`;
-    sides.append(card);
+  const scoreGrid = el("div", "score-grid");
+  const scoreItems = [
+    ["market_risk", "风险/卖出警报", "risk"],
+    ["repair_readiness", "修复/买入准备度", "repair"],
+    ["data_confidence", "数据可信度", "confidence"]
+  ];
+  for (const [key, label, tone] of scoreItems) {
+    const item = scores[key];
+    const card = el("article", `score-card ${tone}${item.alert ? " alert" : ""}`);
+    const details = (item.components || []).map(component =>
+      `<li><span>${component.label}</span><strong>${component.points}/${component.max}</strong>` +
+      `<small>${component.detail}</small></li>`).join("");
+    card.innerHTML = `<p class="score-label">${label}</p>` +
+      `<p class="score-value"><strong>${item.score}</strong><span>/100 · ${item.level}</span></p>` +
+      `<div class="score-track"><i style="width:${Math.max(0, Math.min(100, item.score))}%"></i></div>` +
+      `<details><summary>查看计算</summary><ul>${details}</ul></details>`;
+    scoreGrid.append(card);
   }
-  wrap.append(sides);
-  wrap.append(el("p", "history-boundary", data.two_sided.history_boundary));
+  wrap.append(scoreGrid);
 
-  const guide = el("article", "action-guide");
-  guide.innerHTML = `<p class="verdict-k">通用行动框架（不是个性化买卖指令）</p>` +
-    `<h3>${data.action_guide.level}</h3>` +
-    `<ul>${data.action_guide.checklist.map(item => `<li>${item}</li>`).join("")}</ul>` +
-    `<p class="boundary">${data.action_guide.boundary}</p>`;
-  wrap.append(guide);
-
-  const star = el("article", "star-note");
-  star.innerHTML = `<h3>国家队以前买过科创板股票吗？</h3><p>${data.star_market.answer}</p>` +
-    `<p>${data.star_market.distinction}</p><p class="term">本站跟踪：${data.star_market.tracked_etf}；` +
-    `当前没有可靠汇金持仓参考线，所以只画走势，不判断国家队增减持。</p>`;
-  wrap.append(star);
+  const signal = scores.general_signal;
+  const signalCard = el("article", `score-signal ${signal.state}`);
+  signalCard.innerHTML = `<p class="verdict-k">当前提示 · 数据截至 ${data.as_of || "—"}</p>` +
+    `<h3>${signal.headline}</h3><p>${signal.guidance}</p>` +
+    `<p class="boundary">${signal.boundary}</p>`;
+  wrap.append(signalCard);
 }
 
 /* ---------- 指数 + 政策底/恐慌底标注 ---------- */
@@ -319,7 +307,7 @@ async function renderStudy(assessment) {
   const plain = el("div", "study-plain");
   const twenty = res.summary["20"];
   const wins20 = twenty ? Math.round(twenty.win_rate * twenty.n) : 0;
-  plain.innerHTML = `<strong>先说人话：</strong>“20日胜率85.7%”只表示过去${twenty ? twenty.n : 0}次A股样本中，` +
+  plain.innerHTML = `<strong>如何理解：</strong>“20日胜率85.7%”只表示过去${twenty ? twenty.n : 0}次样本中，` +
     `${wins20}次在20个交易日后上涨；<strong>不是</strong>说明下一次有85.7%的确定上涨概率。` +
     `样本只有7次，一个反例就会让比例改变14.3个百分点。60个交易日大约3个月，是当前样本里最弱的窗口。`;
   wrap.append(plain);
@@ -328,7 +316,7 @@ async function renderStudy(assessment) {
     const range = historyModel && historyModel.metrics[h] && historyModel.metrics[h].wilson95;
     return `<td>${range && range[0] !== null ? `${(range[0] * 100).toFixed(1)}%–${(range[1] * 100).toFixed(1)}%` : "—"}</td>`;
   }).join("");
-  sum.innerHTML = "<caption>仅使用中国大陆A股事件。95%区间很宽，直观说明样本太少。</caption>" +
+  sum.innerHTML = "<caption>95%区间很宽，说明样本太少。</caption>" +
     "<tr><th>持有期</th>" + horizons.map(h => `<th>${h}日</th>`).join("") + "</tr>" +
     "<tr><td>胜率(样本数)</td>" + horizons.map(h => {
       const s = res.summary[h];
@@ -338,11 +326,11 @@ async function renderStudy(assessment) {
 
   const tbl = el("table", "study-table");
   const hasPendingVerification = res.buy_events.some(ev => ev.verify);
-  let rows = "<tr><th>干预日</th><th>市场</th>" +
+  let rows = "<tr><th>干预日</th>" +
     horizons.map(h => `<th>+${h}日</th>`).join("") +
     "<th>之后最深还跌多少</th><th>多久后最低</th></tr>";
   for (const ev of res.buy_events) {
-    rows += `<tr><td>${ev.date}${ev.verify ? " *" : ""} ${ev.note}</td><td>${ev.market}</td>` +
+    rows += `<tr><td>${ev.date}${ev.verify ? " *" : ""} ${ev.note}</td>` +
       horizons.map(h => {
         const r = ev.returns[h];
         const cls = r === null ? "" : (r > 0 ? "pos" : "neg");
@@ -353,7 +341,7 @@ async function renderStudy(assessment) {
   const verificationNote = hasPendingVerification
     ? "* 带星号记录的日期/点位待核实。"
     : "样本日期与点位已按来源复核。";
-  tbl.innerHTML = rows + `<caption>${verificationNote}${res.caveats}</caption>`;
+  tbl.innerHTML = rows + `<caption>${verificationNote}样本量小，且干预往往发生在市场大跌后；历史结果不保证未来。</caption>`;
   wrap.append(tbl);
 }
 
@@ -362,6 +350,7 @@ function humanizeComment(md) {
   return md
     .replace(/倒挂\/减持确认/g, "历史参考线提示（需要定期报告确认）")
     .replace(/持续倒挂，确认减持下限/g, "当前仍低于历史参考线，差额")
+    .replace(/确认减持下限/g, "待定期报告确认的差额")
     .replace(/新出现倒挂/g, "首次低于历史参考线")
     .replace(/倒挂差额/g, "低于历史参考线的差额")
     .replace(/倒挂/g, "低于历史参考线")

@@ -17,30 +17,32 @@ const reportPct = value => value === null || value === undefined
   ]);
   const summary = document.getElementById("report-summary");
   if (!assessment || assessment.market_scope !== "CN") {
-    summary.innerHTML = '<p class="empty">没有找到纯中国大陆A股口径的评估，报告停止展示。</p>';
+    summary.innerHTML = '<p class="empty">评估数据暂不可用。</p>';
     return;
   }
   document.getElementById("report-status").textContent =
-    `报告数据截至 ${assessment.as_of} · 仅中国大陆A股 · 每日自动更新`;
-  summary.innerHTML = `<article class="verdict ${assessment.verdict.state}">` +
-    `<p class="verdict-k">最新结论</p><h3>${assessment.verdict.label}</h3>` +
-    `<p>${assessment.verdict.plain}</p><p class="rule">四模型投票：偏暖${assessment.verdict.counts.support}、` +
-    `警惕${assessment.verdict.counts.risk}、中性${assessment.verdict.counts.neutral}。${assessment.verdict.rule}。</p></article>` +
-    `<div class="two-sided-grid"><article class="side-card buy"><h3>${assessment.two_sided.buy_side.label}</h3><ul>` +
-    assessment.two_sided.buy_side.checks.map(item => `<li class="${item.met ? "met" : "not-met"}">${item.met ? "✓" : "○"} ${item.label}</li>`).join("") +
-    `</ul><p class="term">${assessment.two_sided.buy_side.meaning}</p></article>` +
-    `<article class="side-card sell"><h3>${assessment.two_sided.sell_side.label}</h3><ul>` +
-    assessment.two_sided.sell_side.checks.map(item => `<li class="${item.met ? "met" : "not-met"}">${item.met ? "✓" : "○"} ${item.label}</li>`).join("") +
-    `</ul><p class="term">${assessment.two_sided.sell_side.meaning}</p></article></div>` +
-    `<p class="history-boundary">${assessment.two_sided.history_boundary}</p>` +
-    `<article class="action-guide"><p class="verdict-k">通用行动框架</p>` +
-    `<h3>${assessment.action_guide.level}</h3><ul>` +
-    assessment.action_guide.checklist.map(item => `<li>${item}</li>`).join("") +
-    `</ul><p class="boundary">${assessment.action_guide.boundary}</p></article>`;
+    `报告数据截至 ${assessment.as_of} · 每日自动更新`;
+  const scorecard = assessment.scorecard;
+  const scoreItems = [
+    ["market_risk", "风险/卖出警报", "risk"],
+    ["repair_readiness", "修复/买入准备度", "repair"],
+    ["data_confidence", "数据可信度", "confidence"]
+  ];
+  summary.innerHTML = `<div class="score-grid">${scoreItems.map(([key, label, tone]) => {
+    const item = scorecard[key];
+    return `<article class="score-card ${tone}${item.alert ? " alert" : ""}">` +
+      `<p class="score-label">${label}</p><p class="score-value"><strong>${item.score}</strong>` +
+      `<span>/100 · ${item.level}</span></p><div class="score-track"><i style="width:${item.score}%"></i></div>` +
+      `<ul>${item.components.map(component => `<li><span>${component.label}</span>` +
+      `<strong>${component.points}/${component.max}</strong><small>${component.detail}</small></li>`).join("")}</ul></article>`;
+  }).join("")}</div>` +
+    `<article class="score-signal ${scorecard.general_signal.state}"><p class="verdict-k">当前提示</p>` +
+    `<h3>${scorecard.general_signal.headline}</h3><p>${scorecard.general_signal.guidance}</p>` +
+    `<p class="boundary">${scorecard.general_signal.boundary}</p></article>`;
 
   const history = document.getElementById("report-history");
   if (!study || JSON.stringify(study.markets_included) !== JSON.stringify(["CN"])) {
-    history.innerHTML = "<p>历史结果不是纯A股口径，已停止展示。</p>";
+    history.innerHTML = "<p>历史结果暂不可用。</p>";
     return;
   }
   const historyModel = assessment.models.find(model => model.id === "history");

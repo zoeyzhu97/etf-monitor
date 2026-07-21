@@ -22,9 +22,9 @@ python3 -m http.server 8000
 ## 离线可跑的部分
 
 ```bash
-python3 -m unittest discover tests    # 18个测试，含纯A股口径、买卖双向与模型门槛回归测试
+python3 -m unittest discover tests    # 22个测试，含评分组合、数据时效、买卖双向与模型门槛回归测试
 python3 scripts/daily_comment.py      # 用现有历史数据生成当日解读
-python3 scripts/daily_assessment.py   # 生成今日四模型会诊JSON
+python3 scripts/daily_assessment.py   # 生成风险、修复和数据可信度评分JSON
 ```
 
 ## 部署为"永久网页"
@@ -72,7 +72,7 @@ scripts/backfill_etf_shares.py 回补2026-01-23至今的ETF份额历史
 scripts/fetch_index_daily.py指数日线回补与增量（akshare）
 scripts/daily_comment.py    规则引擎每日解读
 scripts/event_study.py      事件研究（前瞻收益/回撤/bootstrap基准）
-scripts/daily_assessment.py 纯A股四模型会诊（份额/趋势/压力/历史先验）
+scripts/daily_assessment.py 每日评分（风险/修复/数据可信度）及四模型明细
 scripts/import_history.py   历史份额CSV手动导入兜底
 data/                       全部数据与配置（JSON）
 report.html                 永久在线的模型评估报告

@@ -5,6 +5,7 @@
 四个模型分别观察份额、趋势、压力和历史先验；只有至少三个模型同向，
 页面才显示“共同收敛”。所有核心函数保持纯函数，便于离线测试。
 """
+import datetime as dt
 import math
 import statistics
 
@@ -28,10 +29,35 @@ def _mean(values):
 
 def _is_recent_pair(previous, latest, max_gap_days=5):
     """两条记录间隔不超过5个自然日，才视作相邻交易日变化。"""
-    import datetime as dt
     a = dt.date.fromisoformat(previous["date"])
     b = dt.date.fromisoformat(latest["date"])
     return 0 < (b - a).days <= max_gap_days
+
+
+def _recent_streak(rows, intervals=3):
+    """返回最近连续更新间隔的方向；数据断档或方向不一时返回None。"""
+    if len(rows) < intervals + 1:
+        return None
+    recent = rows[-(intervals + 1):]
+    changes = []
+    for previous, latest in zip(recent, recent[1:]):
+        if not _is_recent_pair(previous, latest):
+            return None
+        changes.append(float(latest["total_shares_yi"]) -
+                       float(previous["total_shares_yi"]))
+    if all(change > 0 for change in changes):
+        return "in"
+    if all(change < 0 for change in changes):
+        return "out"
+    return None
+
+
+def _has_recent_window(rows, intervals=3):
+    if len(rows) < intervals + 1:
+        return False
+    recent = rows[-(intervals + 1):]
+    return all(_is_recent_pair(previous, latest)
+               for previous, latest in zip(recent, recent[1:]))
 
 
 def assess_share_flow(histories):
@@ -39,11 +65,19 @@ def assess_share_flow(histories):
     changes = []
     latest_dates = []
     verified = 0
+    consecutive_in = 0
+    consecutive_out = 0
+    streak_comparable = 0
     for code, rows in histories.items():
         if not rows:
             continue
         latest_dates.append(rows[-1]["date"])
         verified += int(bool(rows[-1].get("verified")))
+        streak = _recent_streak(rows)
+        if _has_recent_window(rows):
+            streak_comparable += 1
+            consecutive_in += int(streak == "in")
+            consecutive_out += int(streak == "out")
         if len(rows) < 2 or not _is_recent_pair(rows[-2], rows[-1]):
             continue
         changes.append({
@@ -81,7 +115,13 @@ def assess_share_flow(histories):
             "falling_etfs": falling,
             "net_change_yi": _round(total, 2),
             "latest_date": max(latest_dates) if latest_dates else None,
+            "earliest_latest_date": min(latest_dates) if latest_dates else None,
             "latest_verified": verified,
+            "latest_total": len(latest_dates),
+            "streak_intervals": 3,
+            "streak_comparable_etfs": streak_comparable,
+            "consecutive_inflow_etfs": consecutive_in,
+            "consecutive_outflow_etfs": consecutive_out,
         },
     }
 
@@ -307,7 +347,191 @@ def build_two_sided_view(models):
     }
 
 
-def build_assessment(conf, histories, index_data, study):
+def _score_level(score, labels):
+    if score >= 75:
+        return labels[3]
+    if score >= 50:
+        return labels[2]
+    if score >= 25:
+        return labels[1]
+    return labels[0]
+
+
+def _date_lag_days(evaluation_date, latest_date):
+    if not evaluation_date or not latest_date:
+        return None
+    try:
+        lag = (dt.date.fromisoformat(evaluation_date) -
+               dt.date.fromisoformat(latest_date)).days
+        return max(0, lag)
+    except (TypeError, ValueError):
+        return None
+
+
+def build_scorecard(conf, models, evaluation_date=None):
+    """把警惕、修复和数据质量组合转换为0–100透明分数。"""
+    by_id = {model["id"]: model for model in models}
+    share = by_id["share_flow"]["metrics"]
+    trends = by_id["trend"]["metrics"]
+    stress = by_id["stress"]["metrics"]
+
+    streak_n = int(share.get("streak_comparable_etfs") or 0)
+    inflow_n = int(share.get("consecutive_inflow_etfs") or 0)
+    outflow_n = int(share.get("consecutive_outflow_etfs") or 0)
+    trend_n = len(trends)
+    weak_n = sum(not item["above_ma20"] and not item["above_ma60"]
+                 for item in trends.values())
+    strong_n = sum(item["above_ma20"] and item["above_ma60"]
+                   for item in trends.values())
+    panic_n = int(stress.get("panic_indices") or 0)
+    calm_n = int(stress.get("calm_indices") or 0)
+    stress_n = int(stress.get("total") or 0)
+
+    outflow_points = round(25 * outflow_n / streak_n) if streak_n else 0
+    weak_points = round(25 * weak_n / trend_n) if trend_n else 0
+    panic_points = round(25 * panic_n / stress_n) if stress_n else 0
+    high_risk_combo = (streak_n > 0 and outflow_n / streak_n >= 0.625 and
+                       weak_n >= 2 and panic_n >= 2)
+    risk_bonus = 25 if high_risk_combo else 0
+    risk_score = min(100, outflow_points + weak_points + panic_points + risk_bonus)
+
+    inflow_points = round(25 * inflow_n / streak_n) if streak_n else 0
+    strong_points = round(25 * strong_n / trend_n) if trend_n else 0
+    calm_points = round(25 * calm_n / stress_n) if stress_n else 0
+    repair_combo = (streak_n > 0 and inflow_n / streak_n >= 0.625 and
+                    strong_n >= 2 and calm_n >= 2)
+    repair_bonus = 25 if repair_combo else 0
+    repair_score = min(100, inflow_points + strong_points + calm_points + repair_bonus)
+
+    risk_components = [
+        {"label": "ETF连续3个更新间隔减少", "points": outflow_points,
+         "max": 25, "detail": f"{outflow_n}/{streak_n}只可比ETF"},
+        {"label": "指数同时跌破20日和60日均线", "points": weak_points,
+         "max": 25, "detail": f"{weak_n}/{trend_n}个指数"},
+        {"label": "恐慌压力", "points": panic_points, "max": 25,
+         "detail": f"{panic_n}/{stress_n}个指数"},
+        {"label": "三项同时出现", "points": risk_bonus, "max": 25,
+         "detail": "已触发" if high_risk_combo else "未触发"},
+    ]
+    repair_components = [
+        {"label": "ETF连续3个更新间隔增加", "points": inflow_points,
+         "max": 25, "detail": f"{inflow_n}/{streak_n}只可比ETF"},
+        {"label": "指数同时站上20日和60日均线", "points": strong_points,
+         "max": 25, "detail": f"{strong_n}/{trend_n}个指数"},
+        {"label": "波动和回撤趋于平稳", "points": calm_points, "max": 25,
+         "detail": f"{calm_n}/{stress_n}个指数"},
+        {"label": "三项同时出现", "points": repair_bonus, "max": 25,
+         "detail": "已触发" if repair_combo else "未触发"},
+    ]
+
+    date_candidates = [share.get("latest_date")]
+    date_candidates.extend(item.get("date") for item in trends.values())
+    date_candidates = [value for value in date_candidates if value]
+    if evaluation_date is None:
+        evaluation_date = max(date_candidates, default=None)
+
+    latest_total = int(share.get("latest_total") or 0)
+    latest_verified = int(share.get("latest_verified") or 0)
+    official_points = (round(40 * latest_verified / latest_total)
+                       if latest_total else 0)
+    oldest_latest = share.get("earliest_latest_date")
+    trend_dates = [item.get("date") for item in trends.values() if item.get("date")]
+    if trend_dates:
+        oldest_latest = min([value for value in [oldest_latest, min(trend_dates)]
+                             if value])
+    freshness_lag = _date_lag_days(evaluation_date, oldest_latest)
+    if freshness_lag is not None and freshness_lag <= 4:
+        freshness_points = 30
+    elif freshness_lag is not None and freshness_lag <= 7:
+        freshness_points = 15
+    else:
+        freshness_points = 0
+
+    baseline_date = conf.get("baseline_date")
+    baseline_age = _date_lag_days(evaluation_date, baseline_date)
+    if baseline_age is not None and baseline_age <= 120:
+        baseline_points = 30
+    elif baseline_age is not None and baseline_age <= 180:
+        baseline_points = 15
+    else:
+        baseline_points = 0
+    confidence_score = official_points + freshness_points + baseline_points
+    data_issues = []
+    if latest_total == 0 or latest_verified < latest_total:
+        data_issues.append("部分ETF最新记录不是已核验数据")
+    if freshness_points < 30:
+        data_issues.append("ETF或指数最新日期滞后")
+    if baseline_age is None or baseline_age > 120:
+        data_issues.append("持仓参考线超过120天未更新")
+    data_components = [
+        {"label": "最新ETF记录已核验", "points": official_points, "max": 40,
+         "detail": f"{latest_verified}/{latest_total}只ETF"},
+        {"label": "ETF与指数日期及时", "points": freshness_points, "max": 30,
+         "detail": "日期齐全" if freshness_lag == 0 else
+                   (f"最旧数据滞后{freshness_lag}天" if freshness_lag is not None else "缺少日期")},
+        {"label": "持仓参考线在120天内", "points": baseline_points, "max": 30,
+         "detail": f"已{baseline_age}天" if baseline_age is not None else "缺少日期"},
+    ]
+
+    if confidence_score < 60:
+        state = "data_first"
+        headline = "数据不足，暂不加强买卖判断"
+        guidance = "先修复数据源或更新持仓参考线，再使用风险分和修复分。"
+    elif high_risk_combo:
+        state = "risk_priority"
+        headline = "卖出风险警报：高风险组合已触发"
+        guidance = "不追涨、不把可能的托底当成保证；已有仓位先检查是否超出自己的承受范围。"
+    elif repair_combo:
+        state = "repair_confirmed"
+        headline = "买入准备度较高：修复组合已触发"
+        guidance = "这只是分批观察的条件，不是保证上涨；风险分重新升高时应停止加码。"
+    elif risk_score >= 50:
+        state = "defensive"
+        headline = "偏防守，等待风险回落"
+        guidance = "当前不适合仅凭单日ETF份额增加去抄底；等指数和波动至少再确认一项。"
+    elif repair_score >= 50:
+        state = "watch_repair"
+        headline = "修复中，等待连续确认"
+        guidance = "不追一天的反弹；继续观察ETF份额、均线和波动能否保持同向。"
+    else:
+        state = "wait"
+        headline = "方向不完整，继续观察"
+        guidance = "风险与修复都未形成完整组合，暂不根据单一信号行动。"
+    if data_issues and confidence_score >= 60:
+        guidance += " 数据提示：" + "；".join(data_issues) + "。"
+
+    return {
+        "formula_version": "1.0",
+        "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
+        "market_risk": {
+            "score": risk_score,
+            "level": _score_level(risk_score, ("低", "中", "较高", "高")),
+            "alert": high_risk_combo,
+            "components": risk_components,
+        },
+        "repair_readiness": {
+            "score": repair_score,
+            "level": _score_level(repair_score, ("弱", "观察", "改善中", "确认度较高")),
+            "alert": repair_combo,
+            "components": repair_components,
+        },
+        "data_confidence": {
+            "score": confidence_score,
+            "level": _score_level(confidence_score, ("低", "偏低", "中等", "高")),
+            "alert": bool(data_issues),
+            "issues": data_issues,
+            "components": data_components,
+        },
+        "general_signal": {
+            "state": state,
+            "headline": headline,
+            "guidance": guidance,
+            "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。",
+        },
+    }
+
+
+def build_assessment(conf, histories, index_data, study, evaluation_date=None):
     # 防御性过滤：调用方即使误传入港台指数，也不得进入模型。
     index_data = {code: rows for code, rows in index_data.items()
                   if code in INDEX_NAMES}
@@ -320,10 +544,11 @@ def build_assessment(conf, histories, index_data, study):
     history = assess_history(study)
     models = [share, trend, stress, history]
     verdict = combine_models(models)
+    scorecard = build_scorecard(conf, models, evaluation_date=evaluation_date)
     baseline_count = sum(etf.get("huijin_shares_yi") is not None
                          for etf in conf.get("etfs", []))
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "market_scope": "CN",
         "market_scope_label": "仅中国大陆A股",
         "as_of": max((m.get("date") for m in trend["metrics"].values()), default=None),
@@ -335,6 +560,7 @@ def build_assessment(conf, histories, index_data, study):
         },
         "verdict": verdict,
         "models": models,
+        "scorecard": scorecard,
         "two_sided": build_two_sided_view(models),
         "action_guide": build_action_guide(verdict, models),
         "star_market": {
@@ -353,7 +579,8 @@ def main():
     index_data = {code: load_json(f"index/{code}.json", default=[])
                   for code in INDEX_NAMES}
     study = load_json("event_study_results.json", default={})
-    result = build_assessment(conf, histories, index_data, study)
+    result = build_assessment(conf, histories, index_data, study,
+                              evaluation_date=dt.date.today().isoformat())
     save_json("daily_assessment.json", result)
     print("每日多模型评估已写入 data/daily_assessment.json")
     return 0

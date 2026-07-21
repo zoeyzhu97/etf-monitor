@@ -11,8 +11,9 @@ from utils import gap_to_baseline  # noqa: E402
 from daily_comment import build_comment, _trend  # noqa: E402
 from event_study import forward_return, max_drawdown_after, random_baseline  # noqa: E402
 from daily_assessment import (assess_share_flow, assess_trend, assess_history,
-                              build_assessment, build_two_sided_view, combine_models,
-                              wilson_interval)  # noqa: E402
+                              build_assessment, build_scorecard,
+                              build_two_sided_view, combine_models,
+                              _recent_streak, wilson_interval)  # noqa: E402
 
 
 def mk_rows(vals, start_day=1):
@@ -107,6 +108,37 @@ class TestEventStudy(unittest.TestCase):
 
 
 class TestDailyAssessment(unittest.TestCase):
+    @staticmethod
+    def score_models(direction="out", trend="weak", stress="panic"):
+        share = {
+            "id": "share_flow",
+            "metrics": {
+                "streak_comparable_etfs": 8,
+                "consecutive_inflow_etfs": 8 if direction == "in" else 0,
+                "consecutive_outflow_etfs": 6 if direction == "out" else 0,
+                "latest_total": 8,
+                "latest_verified": 8,
+                "latest_date": "2026-07-20",
+                "earliest_latest_date": "2026-07-20",
+            },
+        }
+        trends = {}
+        for code in ("000001", "399001", "000688"):
+            trends[code] = {
+                "date": "2026-07-20",
+                "above_ma20": trend == "strong",
+                "above_ma60": trend == "strong",
+            }
+        return [
+            share,
+            {"id": "trend", "metrics": trends},
+            {"id": "stress", "metrics": {
+                "panic_indices": 3 if stress == "panic" else 0,
+                "calm_indices": 3 if stress == "calm" else 0,
+                "total": 3,
+            }},
+        ]
+
     def test_share_flow_never_claims_state_buyer(self):
         model = assess_share_flow({
             "a": mk_rows([10, 12]), "b": mk_rows([10, 11]),
@@ -156,6 +188,46 @@ class TestDailyAssessment(unittest.TestCase):
         self.assertIn("1/3", view["buy_side"]["label"])
         self.assertIn("2/3", view["sell_side"]["label"])
         self.assertIn("不虚构卖出胜率模型", view["history_boundary"])
+
+    def test_recent_share_streak_requires_three_adjacent_intervals(self):
+        self.assertEqual(_recent_streak(mk_rows([4, 3, 2, 1])), "out")
+        self.assertEqual(_recent_streak(mk_rows([1, 2, 3, 4])), "in")
+        self.assertIsNone(_recent_streak(mk_rows([1, 2, 1, 2])))
+        sparse = [
+            {"date": "2026-01-01", "total_shares_yi": 4},
+            {"date": "2026-02-01", "total_shares_yi": 3},
+            {"date": "2026-03-01", "total_shares_yi": 2},
+            {"date": "2026-04-01", "total_shares_yi": 1},
+        ]
+        self.assertIsNone(_recent_streak(sparse))
+
+    def test_high_risk_combo_gets_bonus_and_alert(self):
+        scorecard = build_scorecard(
+            {"baseline_date": "2026-07-01"},
+            self.score_models(direction="out", trend="weak", stress="panic"),
+            evaluation_date="2026-07-21")
+        self.assertEqual(scorecard["market_risk"]["score"], 94)
+        self.assertTrue(scorecard["market_risk"]["alert"])
+        self.assertEqual(scorecard["general_signal"]["state"], "risk_priority")
+
+    def test_full_repair_combo_gets_100(self):
+        scorecard = build_scorecard(
+            {"baseline_date": "2026-07-01"},
+            self.score_models(direction="in", trend="strong", stress="calm"),
+            evaluation_date="2026-07-21")
+        self.assertEqual(scorecard["repair_readiness"]["score"], 100)
+        self.assertTrue(scorecard["repair_readiness"]["alert"])
+        self.assertEqual(scorecard["general_signal"]["state"], "repair_confirmed")
+
+    def test_stale_baseline_reduces_data_confidence(self):
+        scorecard = build_scorecard(
+            {"baseline_date": "2026-01-01"},
+            self.score_models(direction="none", trend="mixed", stress="middle"),
+            evaluation_date="2026-07-21")
+        self.assertEqual(scorecard["data_confidence"]["score"], 70)
+        self.assertTrue(scorecard["data_confidence"]["alert"])
+        self.assertIn("持仓参考线超过120天未更新",
+                      scorecard["data_confidence"]["issues"])
 
 
 if __name__ == "__main__":

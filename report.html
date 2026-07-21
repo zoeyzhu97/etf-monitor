@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>A股平准干预 · 模型评估报告</title>
-<link rel="stylesheet" href="assets/style.css?v=20260721-chartfix1">
+<link rel="stylesheet" href="assets/style.css?v=20260721-score1">
 </head>
 <body>
 <header class="masthead">
   <div class="masthead-inner">
-    <p class="eyebrow">MODEL ASSESSMENT · 仅中国大陆A股</p>
+    <p class="eyebrow">MODEL ASSESSMENT</p>
     <h1>多模型评估报告</h1>
     <p class="subtitle">解释网页能做什么、模型如何得出结论，以及哪些事情公开数据无法证明。</p>
     <p class="statusline" id="report-status">读取最新评估中…</p>
@@ -39,12 +39,24 @@
   </section>
 
   <section aria-labelledby="r-scope">
-    <h2 id="r-scope">范围与数据</h2>
+    <h2 id="r-scope">数据口径</h2>
     <div class="report-prose">
-      <p><strong>市场范围固定为中国大陆A股。</strong>指数仅含上证指数、深证成指、科创50；历史胜率仅含7次大陆样本，任何境外市场事件都不参与网页、模型或胜率计算。</p>
       <p>嘉实沪深300ETF（159919）是深交所上市基金。脚本读取深交所“基金规模”报表中的每日总份额字段；深交所也明确159919是嘉实沪深300ETF。上交所ETF使用交易所规模披露并优先用同日单位净值反推份额。</p>
       <p><strong>最重要的限制：</strong>每日总份额是全市场所有持有人的合计，不是中央汇金逐日持仓。汇金持仓只在基金定期报告中离散披露，因此两次报告之间只能观察“市场总份额已低于历史持仓参考线”，不能准确指出汇金在哪一天、以什么价格、卖了多少。</p>
     </div>
+  </section>
+
+  <section aria-labelledby="r-score">
+    <h2 id="r-score">评分怎么计算？</h2>
+    <div class="table-scroll">
+      <table class="study-table model-table">
+        <tr><th>分数</th><th>组成</th><th>组合加分</th></tr>
+        <tr><td>市场风险</td><td>ETF连续3个更新间隔减少、至少两个指数跌破20日与60日均线、恐慌压力；各25分</td><td>三项同时满足再加25分</td></tr>
+        <tr><td>修复准备度</td><td>ETF连续3个更新间隔增加、至少两个指数站上两条均线、波动与回撤平稳；各25分</td><td>三项同时满足再加25分</td></tr>
+        <tr><td>数据可信度</td><td>最新ETF记录已核验40分、日期及时30分、持仓参考线在120天内30分</td><td>不加分；有缺项就直接扣分并提示</td></tr>
+      </table>
+    </div>
+    <p class="lead">风险分和修复分可以同时不低，因为市场可能一边有资金承接、一边仍处于弱趋势。网页不会用一个分数盖住另一个分数。</p>
   </section>
 
   <section aria-labelledby="r-models">
@@ -87,7 +99,7 @@
   <section aria-labelledby="r-alert">
     <h2 id="r-alert">哪些组合值得警惕？</h2>
     <div class="alert-grid">
-      <article class="explain-card"><h3>高警惕</h3><p>多数ETF连续多日份额减少 + 三大指数中至少两个跌破20日和60日均线 + 恐慌压力升高。三者同现比单一信号更值得重视。</p></article>
+      <article class="explain-card"><h3>高警惕</h3><p>多数ETF连续多日份额减少 + 三大指数中至少两个跌破20日和60日均线 + 恐慌压力升高。三者同现时，市场风险分获得25分组合加分并触发提醒。</p></article>
       <article class="explain-card"><h3>不能误读</h3><p>指数暴跌同时ETF份额激增，可能是有人承接、套利或机构配置，也可能与稳定行动重合；它不是“当天必然见底”的证据。</p></article>
       <article class="explain-card"><h3>数据警报</h3><p>交易所官方源失败、最新日期滞后、持仓参考线超过120天未更新时，结论置信度下降。此时应先修数据，不应加强交易判断。</p></article>
       <article class="explain-card"><h3>修复确认</h3><p>多数ETF份额连续增加 + 至少两个指数重回两条均线 + 波动下降，才是更完整的右侧修复组合；仍不保证未来收益。</p></article>
@@ -108,6 +120,6 @@
 </main>
 
 <footer><p>本报告是公开数据的可复核研究框架，只提供通用观察与风险提示。模型不掌握你的财务状况、目标、期限和承受亏损能力，不构成个性化投资建议。</p></footer>
-<script src="assets/report.js?v=20260721"></script>
+<script src="assets/report.js?v=20260721-score1"></script>
 </body>
 </html>

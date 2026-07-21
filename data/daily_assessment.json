@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
   "as_of": "2026-07-20",
@@ -32,7 +32,13 @@
         "falling_etfs": 0,
         "net_change_yi": 144.65,
         "latest_date": "2026-07-20",
-        "latest_verified": 8
+        "earliest_latest_date": "2026-07-20",
+        "latest_verified": 8,
+        "latest_total": 8,
+        "streak_intervals": 3,
+        "streak_comparable_etfs": 8,
+        "consecutive_inflow_etfs": 8,
+        "consecutive_outflow_etfs": 0
       }
     },
     {
@@ -131,6 +137,106 @@
       }
     }
   ],
+  "scorecard": {
+    "formula_version": "1.0",
+    "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
+    "market_risk": {
+      "score": 50,
+      "level": "较高",
+      "alert": false,
+      "components": [
+        {
+          "label": "ETF连续3个更新间隔减少",
+          "points": 0,
+          "max": 25,
+          "detail": "0/8只可比ETF"
+        },
+        {
+          "label": "指数同时跌破20日和60日均线",
+          "points": 25,
+          "max": 25,
+          "detail": "3/3个指数"
+        },
+        {
+          "label": "恐慌压力",
+          "points": 25,
+          "max": 25,
+          "detail": "3/3个指数"
+        },
+        {
+          "label": "三项同时出现",
+          "points": 0,
+          "max": 25,
+          "detail": "未触发"
+        }
+      ]
+    },
+    "repair_readiness": {
+      "score": 25,
+      "level": "观察",
+      "alert": false,
+      "components": [
+        {
+          "label": "ETF连续3个更新间隔增加",
+          "points": 25,
+          "max": 25,
+          "detail": "8/8只可比ETF"
+        },
+        {
+          "label": "指数同时站上20日和60日均线",
+          "points": 0,
+          "max": 25,
+          "detail": "0/3个指数"
+        },
+        {
+          "label": "波动和回撤趋于平稳",
+          "points": 0,
+          "max": 25,
+          "detail": "0/3个指数"
+        },
+        {
+          "label": "三项同时出现",
+          "points": 0,
+          "max": 25,
+          "detail": "未触发"
+        }
+      ]
+    },
+    "data_confidence": {
+      "score": 70,
+      "level": "中等",
+      "alert": true,
+      "issues": [
+        "持仓参考线超过120天未更新"
+      ],
+      "components": [
+        {
+          "label": "最新ETF记录已核验",
+          "points": 40,
+          "max": 40,
+          "detail": "8/8只ETF"
+        },
+        {
+          "label": "ETF与指数日期及时",
+          "points": 30,
+          "max": 30,
+          "detail": "最旧数据滞后1天"
+        },
+        {
+          "label": "持仓参考线在120天内",
+          "points": 0,
+          "max": 30,
+          "detail": "已202天"
+        }
+      ]
+    },
+    "general_signal": {
+      "state": "defensive",
+      "headline": "偏防守，等待风险回落",
+      "guidance": "当前不适合仅凭单日ETF份额增加去抄底；等指数和波动至少再确认一项。 数据提示：持仓参考线超过120天未更新。",
+      "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
+    }
+  },
   "two_sided": {
     "buy_side": {
       "label": "买入/承接侧满足 1/3 项",
