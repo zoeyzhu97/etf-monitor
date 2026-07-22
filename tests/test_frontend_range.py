@@ -32,6 +32,11 @@ class TestEtfChartRangeContract(unittest.TestCase):
         self.assertIsNotNone(js_version)
         self.assertEqual(css_version.group(1), js_version.group(1))
 
+    def test_partial_daily_update_is_not_presented_as_complete(self):
+        self.assertIn("latestCount === conf.etfs.length", self.app)
+        self.assertIn("份额更新中：${latestCount}/${conf.etfs.length}只已到", self.app)
+        self.assertIn("全部齐全至 ${completeDate", self.app)
+
 
 if __name__ == "__main__":
     unittest.main()

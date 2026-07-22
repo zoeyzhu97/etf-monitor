@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "scripts"))
 
 from utils import gap_to_baseline  # noqa: E402
-from daily_comment import build_comment, _trend  # noqa: E402
+from daily_comment import build_comment, common_latest_date, _trend  # noqa: E402
 from event_study import forward_return, max_drawdown_after, random_baseline  # noqa: E402
 from daily_assessment import (assess_share_flow, assess_trend, assess_history,
                               build_assessment, build_scorecard,
@@ -99,6 +99,14 @@ class TestComment(unittest.TestCase):
         txt = build_comment("2026-01-22", self.ETFS, {"510300": rows})
         self.assertIn("无显著变化", txt)
 
+    def test_daily_comment_uses_latest_date_shared_by_all_etfs(self):
+        histories = {
+            "510300": [{"date": "2026-07-21"}, {"date": "2026-07-22"}],
+            "159919": [{"date": "2026-07-21"}],
+        }
+        self.assertEqual(common_latest_date(histories), "2026-07-21")
+        self.assertIsNone(common_latest_date({"510300": [], "159919": histories["159919"]}))
+
 
     def test_no_data_today(self):
         rows = mk_rows([800.0, 800.1], start_day=21)  # 最新为01-22
@@ -150,6 +158,22 @@ class TestComment(unittest.TestCase):
         self.assertIn("参考线过期", txt)
         self.assertNotIn("不能证明买方就是国家队", txt)
         self.assertNotIn("不能据此确认汇金已经卖出", txt)
+
+    def test_comment_reports_risk_convergence_when_three_models_agree(self):
+        rows = mk_rows([740.0, 720.0], start_day=19)
+        assessment = {
+            "as_of": "2026-01-20",
+            "models": [
+                {"id": "share_flow", "vote": "risk", "explanation": "份额减少。"},
+                {"id": "trend", "vote": "risk", "explanation": "趋势偏弱。"},
+                {"id": "stress", "vote": "risk", "explanation": "压力偏高。"},
+            ],
+            "verdict": {"state": "risk", "counts": {"support": 0, "risk": 3}},
+        }
+        txt = build_comment("2026-01-20", self.ETFS,
+                            {"510300": rows}, assessment=assessment)
+        self.assertIn("已形成偏弱方向的共同预警", txt)
+        self.assertNotIn("尚未共同收敛", txt)
 
 
 class TestEventStudy(unittest.TestCase):

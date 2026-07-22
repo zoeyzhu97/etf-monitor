@@ -9,7 +9,7 @@ import datetime
 import os
 import sys
 
-from utils import load_json, load_history, gap_to_baseline
+from utils import load_json, load_history, gap_to_baseline, is_trading_day
 
 SIG_PCT, SIG_ABS_YI, TREND_DAYS = 0.015, 5.0, 5
 DISCLAIMER = "\n以上由规则引擎根据公开数据生成，不构成投资建议。"
@@ -78,13 +78,20 @@ def _analysis_lines(date_str, assessment, inversion_count):
     counts = (assessment.get("verdict") or {}).get("counts", {})
     support = counts.get("support", 0)
     risk = counts.get("risk", 0)
+    convergence = (assessment.get("verdict") or {}).get("state")
+    if convergence == "risk":
+        convergence_text = "，已形成偏弱方向的共同预警。"
+    elif convergence == "support":
+        convergence_text = "，已形成偏暖方向的共同收敛。"
+    else:
+        convergence_text = "，尚未共同收敛。"
     share_text = share.get("explanation", "暂无稳定方向。")
     share_text = share_text.replace(
         "它说明市场净申购偏强，但不能证明买方就是国家队。",
         "市场净申购偏强。")
     lines = [
         "**先看结论**", "",
-        f"{conclusion}四个模型中{support}个偏暖、{risk}个提示风险，尚未共同收敛。", "",
+        f"{conclusion}四个模型中{support}个偏暖、{risk}个提示风险{convergence_text}", "",
         "**数据怎么说**", "",
         f"- ETF份额：{share_text}",
         f"- 指数趋势：{trend.get('explanation', '暂无稳定方向。')}",
@@ -155,13 +162,26 @@ def build_comment(date_str, etfs, histories, assessment=None):
     return "\n".join(lines)
 
 
+def common_latest_date(histories):
+    """所有监控ETF都具备数据的最近日期；任一标的无数据时返回None。"""
+    if not histories or any(not rows for rows in histories.values()):
+        return None
+    return min(rows[-1]["date"] for rows in histories.values())
+
+
 def main():
     conf = load_json("baselines.json")
     histories = {e["code"]: load_history(e["code"]) for e in conf["etfs"]}
-    # 交易所T+1披露: 解读绑定"最新有数据的日期"而非运行日,
-    # 避免每日解读长期显示"暂无数据"。无任何历史数据时才落到今天。
-    latest_dates = [rows[-1]["date"] for rows in histories.values() if rows]
-    date_str = max(latest_dates) if latest_dates else datetime.date.today().isoformat()
+    # 正式解读只在全部监控ETF到齐后生成，避免用6/8只数据冒充完整日报。
+    today = datetime.date.today()
+    date_str = common_latest_date(histories)
+    if date_str is None:
+        print("ETF历史尚未全部建立，暂不生成每日解读。")
+        return 0
+    if is_trading_day(today) and date_str < today.isoformat():
+        latest = max(rows[-1]["date"] for rows in histories.values() if rows)
+        print(f"ETF数据尚未全部到齐（完整至{date_str}，部分至{latest}），暂不生成新解读。")
+        return 0
     assessment = load_json("daily_assessment.json", default={})
     text = build_comment(date_str, conf["etfs"], histories, assessment=assessment)
     out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),

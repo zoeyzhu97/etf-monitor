@@ -9,13 +9,13 @@
     "important": "ETF总份额是全市场总量，不是中央汇金的逐日持仓。"
   },
   "verdict": {
-    "state": "mixed",
-    "label": "信号尚未共同收敛",
-    "plain": "四个模型没有至少3个同向，最诚实的结论是继续观察。",
+    "state": "risk",
+    "label": "多模型共同预警",
+    "plain": "至少3个模型同向偏弱；重点是控制风险，不要把国家队可能出手当成托底承诺。",
     "counts": {
       "support": 1,
-      "risk": 2,
-      "neutral": 1
+      "risk": 3,
+      "neutral": 0
     },
     "rule": "至少3/4个模型同向才称为共同收敛"
   },
@@ -23,21 +23,21 @@
     {
       "id": "share_flow",
       "name": "模型1 · ETF份额流向",
-      "vote": "neutral",
-      "title": "ETF份额方向不一致",
-      "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
+      "vote": "risk",
+      "title": "多数ETF总份额减少",
+      "explanation": "7/8只ETF最近一条有效记录减少，合计约减少39.2亿份。若连续多日发生，才值得提高警惕。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 4,
-        "falling_etfs": 4,
-        "net_change_yi": -8.39,
-        "latest_date": "2026-07-21",
-        "earliest_latest_date": "2026-07-21",
+        "rising_etfs": 1,
+        "falling_etfs": 7,
+        "net_change_yi": -39.21,
+        "latest_date": "2026-07-22",
+        "earliest_latest_date": "2026-07-22",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 4,
+        "consecutive_inflow_etfs": 1,
         "consecutive_outflow_etfs": 0
       }
     },
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 12,
+      "score": 3,
       "level": "弱",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 12,
+          "points": 3,
           "max": 25,
-          "detail": "4/8只可比ETF"
+          "detail": "1/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
@@ -257,11 +257,11 @@
       "meaning": "3项同时满足才属于较完整的右侧修复组合；即使满足，也不能确认买方身份或保证上涨。"
     },
     "sell_side": {
-      "label": "卖出/风险侧满足 2/3 项",
+      "label": "卖出/风险侧满足 3/3 项",
       "checks": [
         {
           "label": "多数ETF份额减少",
-          "met": false
+          "met": true
         },
         {
           "label": "多数指数跌破20日与60日均线",
@@ -277,15 +277,15 @@
     "history_boundary": "历史事件研究只统计买入/政策干预。当前没有足够的、经官方确认且可精确定位的A股国家队卖出事件，因此不虚构卖出胜率模型。"
   },
   "action_guide": {
-    "level": "等待级：证据不足",
+    "level": "警惕级：先管风险",
     "why": [
-      "ETF份额方向不一致",
+      "多数ETF总份额减少",
       "多数指数跌到中短期均线下方"
     ],
     "checklist": [
-      "不根据单一红色区域、单日申购或一条政策新闻做决定。",
-      "等待份额模型与趋势模型转为同向，再重新评估。",
-      "如果你看不懂一个信号，就先不行动；错过一点通常比在不理解时冒险更可控。"
+      "不要因为“国家队可能救市”就假定下跌空间已经消失。",
+      "等待至少两个指数重回20日均线，并观察份额流出是否停止。",
+      "连续大额份额减少、三大指数同步跌破60日均线，是需要升级警惕的组合。"
     ],
     "boundary": "这是通用观察框架，不了解你的资金用途、期限和承受亏损能力，不能替代个性化投资建议。"
   },

@@ -115,6 +115,17 @@ async function renderEtfSection(conf) {
     [etf.code, normalizeShareRows(etf.code,
       (await fetchJSON(`data/history/${etf.code}.json`)) || [], adjustments)]));
   const histories = Object.fromEntries(historyPairs);
+  const perEtfLatestDates = conf.etfs.map(etf => {
+    const rows = histories[etf.code] || [];
+    return rows.length ? rows[rows.length - 1].date : null;
+  });
+  const availableLatestDates = perEtfLatestDates.filter(Boolean);
+  const latestDate = availableLatestDates.length
+    ? availableLatestDates.slice().sort().at(-1) : null;
+  const completeDate = perEtfLatestDates.every(Boolean)
+    ? perEtfLatestDates.slice().sort()[0] : null;
+  const latestCount = latestDate
+    ? perEtfLatestDates.filter(date => date === latestDate).length : 0;
   const largeChanges = [];
   for (const etf of conf.etfs) {
     for (const change of comparableShareChanges(histories[etf.code])) {
@@ -127,7 +138,7 @@ async function renderEtfSection(conf) {
     .filter(rows => rows.length)
     .map(rows => rows[0].date)
     .sort()[0] || "—";
-  let inverted = 0, watched = 0, latestDate = null;
+  let inverted = 0, watched = 0;
   let coreSum = 0, coreCount = 0;
 
   for (const etf of conf.etfs) {
@@ -153,7 +164,6 @@ async function renderEtfSection(conf) {
     title.querySelector(".chart-latest").textContent = `最新 ${last.date}`;
     title.querySelector(".latest-btn").setAttribute("aria-label", `${etf.name}回到最新日期`);
     title.querySelector(".all-btn").setAttribute("aria-label", `${etf.name}显示全部历史`);
-    if (!latestDate || last.date > latestDate) latestDate = last.date;
     const base = etf.huijin_shares_yi;
     const isInv = base !== null && last.total_shares_yi < base;
     if (isInv) {
@@ -317,8 +327,13 @@ async function renderEtfSection(conf) {
     mk("宽基总份额", coreCount ? fmt(coreSum, 1) + " 亿份" : "—"),
     mk("持仓参考日", conf.baseline_date)
   );
+  const freshnessText = latestDate && latestCount === conf.etfs.length
+    ? `全部${conf.etfs.length}只ETF已更新至 ${latestDate}`
+    : latestDate
+      ? `份额更新中：${latestCount}/${conf.etfs.length}只已到 ${latestDate}；全部齐全至 ${completeDate || "—"}`
+      : "ETF份额暂无数据";
   document.getElementById("statusline").textContent =
-    `最新份额日期 ${latestDate || "—"} · 持仓参考来源 ${conf.updated_from}（${conf.baseline_date}）` +
+    `${freshnessText} · 持仓参考来源 ${conf.updated_from}（${conf.baseline_date}）` +
     (inverted ? ` · ${inverted}只ETF总份额低于历史参考线，原因要等定期报告确认` : " · 暂无ETF低于历史参考线");
 
   const signalBox = document.getElementById("etf-signal-summary");

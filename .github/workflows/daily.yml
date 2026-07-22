@@ -1,10 +1,17 @@
 name: daily-update
 on:
   schedule:
-    - cron: '40 7 * * 1-5'   # UTC 07:40 = 北京时间 15:40
-    - cron: '0 12 * * 1-5'   # 北京时间 20:00 兜底重试
-    - cron: '0 16 * * 1-5'   # UTC 周一至周五 16:00 = 北京次日 00:00 最终重试
+    # 避开整点，降低 GitHub Actions 高峰期延迟或漏跑概率。
+    - cron: '43 7 * * 1-5'   # 北京时间 15:43：盘后首次尝试
+    - cron: '17 12 * * 1-5'  # 北京时间 20:17：晚间重试
+    - cron: '17 16 * * 1-5'  # 北京次日 00:17：交易所夜间披露后重试
+    - cron: '17 17 * * 1-5'  # 北京次日 01:17：迟到源重试
+    - cron: '17 18 * * 1-5'  # 北京次日 02:17：最终检查
   workflow_dispatch:
+
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -34,9 +41,8 @@ jobs:
         run: python scripts/daily_assessment.py
       - name: Daily comment
         run: python scripts/daily_comment.py
-      - name: Check ETF data freshness after final retry
+      - name: Check ETF data freshness
         id: freshness
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 16 * * 1-5'
         run: python scripts/check_data_freshness.py
         continue-on-error: true
       - name: Commit & push
@@ -58,15 +64,33 @@ jobs:
               body: '份额抓取脚本退出码非0, 请检查数据源字段是否变动。'
             });
       - name: Alert on stale ETF date
-        if: steps.freshness.outcome == 'failure'
+        if: >-
+          steps.freshness.outcome == 'failure' &&
+          (github.event_name == 'workflow_dispatch' || github.event.schedule == '17 18 * * 1-5')
         uses: actions/github-script@v7
         env:
           FRESHNESS_MESSAGE: ${{ steps.freshness.outputs.message }}
         with:
           script: |
-            await github.rest.issues.create({
+            const title = `ETF日期滞后告警 ${new Date().toISOString().slice(0,10)}`;
+            const { data: openIssues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `ETF日期滞后告警 ${new Date().toISOString().slice(0,10)}`,
-              body: process.env.FRESHNESS_MESSAGE || '北京次日00:00最终重试后ETF份额日期仍滞后。'
+              state: 'open',
+              per_page: 100
             });
+            if (!openIssues.some(issue => issue.title === title)) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: process.env.FRESHNESS_MESSAGE || '北京次日02:17最终重试后ETF份额日期仍滞后。'
+              });
+            }
+      - name: Fail final run when ETF data is stale
+        if: >-
+          steps.freshness.outcome == 'failure' &&
+          (github.event_name == 'workflow_dispatch' || github.event.schedule == '17 18 * * 1-5')
+        run: |
+          echo "ETF份额未全部更新到应有交易日；最终任务标记失败，不能再显示绿色假成功。"
+          exit 1

@@ -33,7 +33,9 @@ python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
 2. Settings → Pages → Source 选 `main` 分支根目录
 3. Settings → Actions → General 里允许 workflow 写入（Read and write permissions）
 4. Actions 页手动触发一次 `daily-update` 验证全流程
-5. 之后每个交易日 15:40 自动抓数、生成解读、提交并刷新页面
+5. 之后每个交易日盘后自动抓数；北京时间15:43、20:17及次日
+   00:17/01:17/02:17依次重试。只有8只ETF全部到齐才生成新解读；
+   次日02:17仍滞后时任务会标红并建立告警，避免“绿色假成功”
 
 ## 数据源优先级
 
