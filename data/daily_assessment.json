@@ -28,17 +28,17 @@
       "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 0,
-        "falling_etfs": 2,
-        "net_change_yi": -4.3,
+        "rising_etfs": 4,
+        "falling_etfs": 4,
+        "net_change_yi": 17.56,
         "latest_date": "2026-07-23",
         "earliest_latest_date": "2026-07-22",
-        "latest_verified": 2,
+        "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 0,
-        "consecutive_outflow_etfs": 0
+        "consecutive_inflow_etfs": 1,
+        "consecutive_outflow_etfs": 1
       }
     },
     {
@@ -141,15 +141,15 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 42,
+      "score": 45,
       "level": "中",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔减少",
-          "points": 0,
+          "points": 3,
           "max": 25,
-          "detail": "0/8只可比ETF"
+          "detail": "1/8只可比ETF"
         },
         {
           "label": "指数同时跌破20日和60日均线",
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 0,
+      "score": 3,
       "level": "弱",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 0,
+          "points": 3,
           "max": 25,
-          "detail": "0/8只可比ETF"
+          "detail": "1/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",
@@ -203,19 +203,18 @@
       ]
     },
     "data_confidence": {
-      "score": 40,
-      "level": "偏低",
+      "score": 70,
+      "level": "中等",
       "alert": true,
       "issues": [
-        "部分ETF最新记录不是已核验数据",
         "持仓参考线超过120天未更新"
       ],
       "components": [
         {
           "label": "最新ETF记录已核验",
-          "points": 10,
+          "points": 40,
           "max": 40,
-          "detail": "2/8只ETF"
+          "detail": "8/8只ETF"
         },
         {
           "label": "ETF与指数日期及时",
@@ -232,9 +231,9 @@
       ]
     },
     "general_signal": {
-      "state": "data_first",
-      "headline": "数据不足，暂不加强买卖判断",
-      "guidance": "先修复数据源或更新持仓参考线，再使用风险分和修复分。",
+      "state": "wait",
+      "headline": "方向不完整，继续观察",
+      "guidance": "风险与修复都未形成完整组合，暂不根据单一信号行动。 数据提示：持仓参考线超过120天未更新。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
