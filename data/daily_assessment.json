@@ -28,17 +28,17 @@
       "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 4,
-        "falling_etfs": 4,
-        "net_change_yi": -7.02,
+        "rising_etfs": 5,
+        "falling_etfs": 3,
+        "net_change_yi": -6.19,
         "latest_date": "2026-07-24",
-        "earliest_latest_date": "2026-07-23",
+        "earliest_latest_date": "2026-07-24",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
         "consecutive_inflow_etfs": 1,
-        "consecutive_outflow_etfs": 2
+        "consecutive_outflow_etfs": 1
       }
     },
     {
@@ -141,15 +141,15 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 56,
+      "score": 53,
       "level": "较高",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔减少",
-          "points": 6,
+          "points": 3,
           "max": 25,
-          "detail": "2/8只可比ETF"
+          "detail": "1/8只可比ETF"
         },
         {
           "label": "指数同时跌破20日和60日均线",
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
