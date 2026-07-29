@@ -25,19 +25,19 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "6/8只ETF最近一条有效记录增加，合计约增加44.9亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加69.2亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 6,
-        "falling_etfs": 2,
-        "net_change_yi": 44.93,
-        "latest_date": "2026-07-28",
+        "rising_etfs": 7,
+        "falling_etfs": 1,
+        "net_change_yi": 69.2,
+        "latest_date": "2026-07-29",
         "earliest_latest_date": "2026-07-28",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 5,
+        "consecutive_inflow_etfs": 6,
         "consecutive_outflow_etfs": 0
       }
     },
@@ -60,15 +60,15 @@
           "volatility20": 0.2114
         },
         "399001": {
-          "date": "2026-07-28",
-          "close": 13509.68,
-          "ma20": 14657.88,
-          "ma60": 15308.08,
+          "date": "2026-07-29",
+          "close": 13658.44,
+          "ma20": 14534.84,
+          "ma60": 15283.93,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.1664,
-          "drawdown120": -0.1749,
-          "volatility20": 0.4104
+          "return20": -0.1527,
+          "drawdown120": -0.1658,
+          "volatility20": 0.4159
         },
         "000688": {
           "date": "2026-07-29",
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 16,
+      "score": 19,
       "level": "弱",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 16,
+          "points": 19,
           "max": 25,
-          "detail": "5/8只可比ETF"
+          "detail": "6/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",
