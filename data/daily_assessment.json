@@ -25,14 +25,14 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加53.5亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加62.6亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
         "rising_etfs": 7,
         "falling_etfs": 1,
-        "net_change_yi": 53.53,
+        "net_change_yi": 62.58,
         "latest_date": "2026-07-30",
-        "earliest_latest_date": "2026-07-29",
+        "earliest_latest_date": "2026-07-30",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
