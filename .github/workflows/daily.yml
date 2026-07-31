@@ -1,10 +1,13 @@
 name: daily-update
 on:
   schedule:
-    # 避开整点，降低 GitHub Actions 高峰期延迟或漏跑概率。
-    - cron: '43 7 * * 1-5'   # 北京时间 15:43：盘后首次尝试
-    - cron: '17 12 * * 1-5'  # 北京时间 20:17：晚间重试
-    - cron: '17 16 * * 1-5'  # 北京次日 00:17：交易所夜间披露后重试
+    # 深交所通常约23:00披露；增加发布窗口内的冗余任务，抵抗GitHub排队或漏跑。
+    # 未齐备的尝试不会发布半成品，因此多次尝试不会造成页面日期混杂。
+    - cron: '17 12 * * 1-5'  # 北京时间 20:17：早到数据首次尝试
+    - cron: '17 13 * * 1-5'  # 北京时间 21:17：排队冗余
+    - cron: '17 14 * * 1-5'  # 北京时间 22:17：排队冗余
+    - cron: '17 15 * * 1-5'  # 北京时间 23:17：官方披露后首次尝试
+    - cron: '17 16 * * 1-5'  # 北京次日 00:17：主要更新时间
     - cron: '17 17 * * 1-5'  # 北京次日 01:17：迟到源重试
     - cron: '17 18 * * 1-5'  # 北京次日 02:17：最终检查
   workflow_dispatch:
@@ -20,6 +23,8 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,23 +40,37 @@ jobs:
         continue-on-error: true
       - name: Fetch index daily (incremental)
         run: python scripts/fetch_index_daily.py || echo "指数更新失败, 保留旧数据"
-      - name: Event study
-        run: python scripts/event_study.py || echo "事件研究跳过(指数数据未就绪)"
-      - name: Daily multi-model assessment
-        run: python scripts/daily_assessment.py
-      - name: Daily comment
-        run: python scripts/daily_comment.py
+      # 所有ETF必须先到达同一应有交易日，才生成衍生数据并对外发布。
+      # 早期抓取若遇到深交所晚披露，runner 中的半成品会随任务结束丢弃，
+      # main 分支和两个网站继续保留上一交易日的完整快照。
       - name: Check ETF data freshness
         id: freshness
         run: python scripts/check_data_freshness.py
         continue-on-error: true
+      - name: Event study
+        if: steps.freshness.outcome == 'success'
+        run: python scripts/event_study.py || echo "事件研究跳过(指数数据未就绪)"
+      - name: Daily multi-model assessment
+        if: steps.freshness.outcome == 'success'
+        run: python scripts/daily_assessment.py
+      - name: Daily comment
+        if: steps.freshness.outcome == 'success'
+        run: python scripts/daily_comment.py
       - name: Commit & push
+        id: publish
+        if: steps.freshness.outcome == 'success'
         run: |
           git config user.name "etf-monitor-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/
-          git diff --cached --quiet || git commit -m "data: $(date -u +%F) auto update"
-          git push
+          if git diff --cached --quiet; then
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "数据已是最新，无需重复发布。"
+          else
+            git commit -m "data: $(date -u +%F) auto update"
+            git push
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Alert on fetch failure
         if: steps.fetch.outcome == 'failure'
         uses: actions/github-script@v7
@@ -94,3 +113,40 @@ jobs:
         run: |
           echo "ETF份额未全部更新到应有交易日；最终任务标记失败，不能再显示绿色假成功。"
           exit 1
+
+  # 自动任务使用 GITHUB_TOKEN 推送时，GitHub 不会再次触发另一个 push 工作流。
+  # 因此国内镜像必须直接接在本次成功发布之后，不能只依赖 deploy-cloudbase.yml。
+  deploy-cloudbase:
+    needs: update
+    if: needs.update.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out newly published data
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install CloudBase CLI
+        run: npm install --global @cloudbase/cli@latest
+
+      - name: Sign in to CloudBase
+        env:
+          TCB_SECRET_ID: ${{ secrets.TCB_SECRET_ID }}
+          TCB_SECRET_KEY: ${{ secrets.TCB_SECRET_KEY }}
+        run: tcb login --apiKeyId "$TCB_SECRET_ID" --apiKey "$TCB_SECRET_KEY"
+
+      - name: Prepare static site
+        run: |
+          mkdir -p "$RUNNER_TEMP/etf-monitor-site"
+          rsync -a --delete --exclude '.git/' ./ "$RUNNER_TEMP/etf-monitor-site/"
+
+      - name: Deploy static site
+        env:
+          TCB_ENV_ID: ${{ secrets.TCB_ENV_ID }}
+        run: tcb hosting deploy "$RUNNER_TEMP/etf-monitor-site" / -e "$TCB_ENV_ID"
