@@ -33,10 +33,10 @@ python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
 2. Settings → Pages → Source 选 `main` 分支根目录
 3. Settings → Actions → General 里允许 workflow 写入（Read and write permissions）
 4. Actions 页手动触发一次 `daily-update` 验证全流程
-5. 之后每个交易日盘后自动抓数；北京时间15:43、20:17及次日
-   00:17/01:17/02:17依次重试。只有8只ETF全部到齐才生成新解读；
+5. 之后每个交易日盘后自动抓数；北京时间20:17起逐小时冗余尝试，
+   23:17、次日00:17/01:17/02:17重点重试。只有8只ETF全部到齐才生成新解读并一次性发布；
    次日02:17仍滞后时任务会标红并建立告警，避免“绿色假成功”
-6. 中国大陆镜像使用 CloudBase Git个人仓库部署；需保持 GitHub 授权有效，授权过期会停止自动部署。
+6. 中国大陆镜像由每日更新工作流在完整数据提交后直接部署；人工修改推送仍由独立的 CloudBase 工作流部署。这样不依赖机器人提交再次触发 `push`，也无需每日重新授权。
 
 ## 数据源优先级
 
@@ -90,7 +90,7 @@ output/pdf/                 可转发的静态PDF评估指南
 scripts/build_assessment_pdf.py 根据最新评估JSON生成PDF指南
 MODEL_ASSESSMENT_REPORT.md  可下载/审阅的报告文本
 tests/                      离线单元测试
-.github/workflows/daily.yml 每日自动更新流水线
+.github/workflows/daily.yml 每日自动更新流水线（8只ETF齐备后原子发布，并同步部署国内镜像）
 ```
 
 ## 免责声明
