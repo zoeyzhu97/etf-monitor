@@ -224,7 +224,16 @@ def fetch_szse_share_rows(code: str, start_date, end_date):
         "txtStart": start_date.isoformat(),
         "txtEnd": end_date.isoformat(),
     }
-    first = _get_json(SZSE_REPORT_URL, {**base_params, "PAGENO": 1}, SZSE_HEADERS)
+    # 深交所接口在披露切换窗口偶尔会由不同缓存节点返回新旧结果。
+    # 官方网页请求也携带随机参数；每页加入缓存破坏参数，避免刚发布后仍读旧日。
+    def page_params(page_no):
+        return {
+            **base_params,
+            "PAGENO": page_no,
+            "random": f"{time.time_ns()}-{page_no}",
+        }
+
+    first = _get_json(SZSE_REPORT_URL, page_params(1), SZSE_HEADERS)
     first_tab = next((tab for tab in first
                       if tab.get("metadata", {}).get("tabkey") == "tab1"), None)
     if not first_tab:
@@ -233,7 +242,7 @@ def fetch_szse_share_rows(code: str, start_date, end_date):
     tabs = [first_tab]
     for page_no in range(2, page_count + 1):
         payload = _get_json(
-            SZSE_REPORT_URL, {**base_params, "PAGENO": page_no}, SZSE_HEADERS)
+            SZSE_REPORT_URL, page_params(page_no), SZSE_HEADERS)
         tab = next((item for item in payload
                     if item.get("metadata", {}).get("tabkey") == "tab1"), None)
         if tab:
@@ -308,7 +317,11 @@ def fetch_official(code: str, exchange: str, as_of=None):
     start_date = end_date - datetime.timedelta(days=OFFICIAL_LOOKBACK_DAYS)
     try:
         if exchange == "SZ":
-            rows = fetch_szse_share_rows(code, start_date, end_date)
+            # 先单独查询应有交易日，既缩小响应也绕开区间查询的旧缓存；
+            # 当天尚未披露时再查回看区间，以保留最近一个真实交易日。
+            rows = fetch_szse_share_rows(code, end_date, end_date)
+            if not rows:
+                rows = fetch_szse_share_rows(code, start_date, end_date)
         else:
             # 直接份额报表按单日查询；倒序命中最近披露日后即可停止。
             rows = []
