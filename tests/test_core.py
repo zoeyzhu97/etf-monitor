@@ -4,6 +4,7 @@ import datetime
 import sys
 import os
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "scripts"))
@@ -15,7 +16,9 @@ from daily_assessment import (assess_share_flow, assess_trend, assess_history,
                               build_assessment, build_scorecard,
                               build_two_sided_view, combine_models,
                               _recent_streak, wilson_interval)  # noqa: E402
-from fetch_etf_shares import _parse_sse_share_payload  # noqa: E402
+from fetch_etf_shares import (_parse_sse_share_payload,  # noqa: E402
+                              fetch_official,
+                              fetch_szse_share_rows)
 from backfill_etf_shares import _date_chunks  # noqa: E402
 from check_data_freshness import (expected_trading_date,
                                   find_stale_etfs)  # noqa: E402
@@ -61,6 +64,33 @@ class TestOfficialShareBackfill(unittest.TestCase):
         for current, following in zip(chunks, chunks[1:]):
             self.assertEqual(current[1] + datetime.timedelta(days=1),
                              following[0])
+
+    @mock.patch("fetch_etf_shares._get_json")
+    def test_szse_request_bypasses_stale_cache(self, get_json):
+        get_json.return_value = [{
+            "metadata": {"tabkey": "tab1", "pagecount": 1},
+            "data": [],
+        }]
+        fetch_szse_share_rows(
+            "159919", datetime.date(2026, 7, 31),
+            datetime.date(2026, 7, 31))
+        params = get_json.call_args.args[1]
+        self.assertIn("random", params)
+        self.assertEqual(params["txtStart"], "2026-07-31")
+        self.assertEqual(params["txtEnd"], "2026-07-31")
+
+    @mock.patch("fetch_etf_shares.fetch_szse_share_rows")
+    def test_szse_official_checks_expected_day_before_lookback(self, fetch):
+        fetch.side_effect = [[], [{
+            "date": "2026-07-30", "total_shares_yi": 65.44,
+            "source": "szse_official", "verified": True,
+        }]]
+        shares, source, day = fetch_official(
+            "159919", "SZ", as_of=datetime.date(2026, 7, 31))
+        self.assertEqual((shares, source, day),
+                         (65.44, "szse_official", "2026-07-30"))
+        self.assertEqual(fetch.call_args_list[0].args[1:], (
+            datetime.date(2026, 7, 31), datetime.date(2026, 7, 31)))
 
 
 class TestDataFreshness(unittest.TestCase):
