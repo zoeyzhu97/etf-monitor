@@ -14,8 +14,8 @@
     "plain": "四个模型没有至少3个同向，最诚实的结论是继续观察。",
     "counts": {
       "support": 1,
-      "risk": 2,
-      "neutral": 1
+      "risk": 1,
+      "neutral": 2
     },
     "rule": "至少3/4个模型同向才称为共同收敛"
   },
@@ -23,17 +23,17 @@
     {
       "id": "share_flow",
       "name": "模型1 · ETF份额流向",
-      "vote": "risk",
-      "title": "多数ETF总份额减少",
-      "explanation": "8/8只ETF最近一条有效记录减少，合计约减少42.2亿份。若连续多日发生，才值得提高警惕。",
+      "vote": "neutral",
+      "title": "ETF份额方向不一致",
+      "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 0,
-        "falling_etfs": 8,
-        "net_change_yi": -42.23,
+        "rising_etfs": 2,
+        "falling_etfs": 3,
+        "net_change_yi": 4.77,
         "latest_date": "2026-08-05",
         "earliest_latest_date": "2026-08-05",
-        "latest_verified": 8,
+        "latest_verified": 2,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
@@ -203,18 +203,19 @@
       ]
     },
     "data_confidence": {
-      "score": 70,
-      "level": "中等",
+      "score": 40,
+      "level": "偏低",
       "alert": true,
       "issues": [
+        "部分ETF最新记录不是已核验数据",
         "持仓参考线超过120天未更新"
       ],
       "components": [
         {
           "label": "最新ETF记录已核验",
-          "points": 40,
+          "points": 10,
           "max": 40,
-          "detail": "8/8只ETF"
+          "detail": "2/8只ETF"
         },
         {
           "label": "ETF与指数日期及时",
@@ -231,9 +232,9 @@
       ]
     },
     "general_signal": {
-      "state": "wait",
-      "headline": "方向不完整，继续观察",
-      "guidance": "风险与修复都未形成完整组合，暂不根据单一信号行动。 数据提示：持仓参考线超过120天未更新。",
+      "state": "data_first",
+      "headline": "数据不足，暂不加强买卖判断",
+      "guidance": "先修复数据源或更新持仓参考线，再使用风险分和修复分。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
@@ -257,11 +258,11 @@
       "meaning": "3项同时满足才属于较完整的右侧修复组合；即使满足，也不能确认买方身份或保证上涨。"
     },
     "sell_side": {
-      "label": "卖出/风险侧满足 2/3 项",
+      "label": "卖出/风险侧满足 1/3 项",
       "checks": [
         {
           "label": "多数ETF份额减少",
-          "met": true
+          "met": false
         },
         {
           "label": "多数指数跌破20日与60日均线",
@@ -279,7 +280,7 @@
   "action_guide": {
     "level": "等待级：证据不足",
     "why": [
-      "多数ETF总份额减少",
+      "ETF份额方向不一致",
       "三大指数趋势有分歧"
     ],
     "checklist": [
