@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DAILY_WORKFLOW = ROOT / ".github" / "workflows" / "daily.yml"
 FALLBACK_WORKFLOW = (ROOT / ".github" / "workflows" /
                      "daily-runner-fallback.yml")
+DEPLOY_WORKFLOW = (ROOT / ".github" / "workflows" /
+                   "deploy-cloudbase.yml")
 
 
 class TestDailyWorkflow(unittest.TestCase):
@@ -87,6 +89,18 @@ class TestRunnerFallbackWorkflow(unittest.TestCase):
 
     def test_fallback_inherits_deployment_secrets(self):
         self.assertIn("secrets: inherit", self.workflow)
+
+
+class TestCloudBaseWorkflow(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.workflow = DEPLOY_WORKFLOW.read_text(encoding="utf-8")
+
+    def test_delayed_deploy_always_checks_out_latest_main(self):
+        """较旧的push任务晚启动时，不能把国内镜像覆盖回旧版本。"""
+        checkout = self.workflow.index("uses: actions/checkout@v4")
+        deploy = self.workflow.index("tcb hosting deploy", checkout)
+        self.assertIn("ref: main", self.workflow[checkout:deploy])
 
 
 if __name__ == "__main__":
