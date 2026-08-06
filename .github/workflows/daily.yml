@@ -11,10 +11,19 @@ on:
     - cron: '17 17 * * 1-5'  # 北京次日 01:17：迟到源重试
     - cron: '17 18 * * 1-5'  # 北京次日 02:17：最终检查
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      runner:
+        description: GitHub hosted runner label
+        required: false
+        default: ubuntu-latest
+        type: string
 
 concurrency:
-  group: daily-update
+  # Ubuntu主通道与macOS兜底通道使用不同队列；同一通道的延迟任务全部保留。
+  group: daily-update-${{ inputs.runner || 'ubuntu-latest' }}
   cancel-in-progress: false
+  queue: max
 
 permissions:
   contents: write
@@ -22,7 +31,7 @@ permissions:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
     outputs:
       published: ${{ steps.publish.outputs.published }}
     steps:
@@ -68,6 +77,9 @@ jobs:
             echo "数据已是最新，无需重复发布。"
           else
             git commit -m "data: $(date -u +%F) auto update"
+            # macOS兜底与Ubuntu主通道可能前后完成；先吸收先到的提交，
+            # 相同数据会在rebase时自动去重，避免非快进推送失败。
+            git pull --rebase origin main
             git push
             echo "published=true" >> "$GITHUB_OUTPUT"
           fi
@@ -119,7 +131,7 @@ jobs:
   deploy-cloudbase:
     needs: update
     if: needs.update.outputs.published == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - name: Check out newly published data

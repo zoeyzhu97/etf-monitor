@@ -1,0 +1,25 @@
+name: daily-update-runner-fallback
+
+on:
+  # 主任务若因GitHub托管运行器未分配而失败，自动改用独立的macOS池。
+  workflow_run:
+    workflows:
+      - daily-update
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  fallback:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'failure' ||
+      github.event.workflow_run.conclusion == 'cancelled'
+    uses: ./.github/workflows/daily.yml
+    with:
+      runner: macos-latest
+    secrets: inherit
