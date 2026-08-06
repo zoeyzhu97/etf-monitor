@@ -1,0 +1,50 @@
+name: deploy-pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # Use the independent macOS pool because the standard Pages/Ubuntu build
+    # pool has repeatedly failed to acquire a runner for this repository.
+    runs-on: macos-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Prepare static site
+        run: |
+          mkdir -p "${RUNNER_TEMP}/etf-monitor-pages"
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            ./ "${RUNNER_TEMP}/etf-monitor-pages/"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/etf-monitor-pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
