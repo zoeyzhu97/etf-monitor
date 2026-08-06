@@ -15,7 +15,8 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # Keep the mirror deployment independent from the primary Ubuntu pool.
+    runs-on: macos-latest
     timeout-minutes: 15
     steps:
       - name: Check out repository
