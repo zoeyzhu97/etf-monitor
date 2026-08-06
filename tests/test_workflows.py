@@ -10,6 +10,7 @@ FALLBACK_WORKFLOW = (ROOT / ".github" / "workflows" /
                      "daily-runner-fallback.yml")
 DEPLOY_WORKFLOW = (ROOT / ".github" / "workflows" /
                    "deploy-cloudbase.yml")
+PAGES_WORKFLOW = (ROOT / ".github" / "workflows" / "deploy-pages.yml")
 
 
 class TestDailyWorkflow(unittest.TestCase):
@@ -105,6 +106,25 @@ class TestCloudBaseWorkflow(unittest.TestCase):
     def test_mirror_deploy_uses_independent_runner_pool(self):
         """国内镜像部署不应与主日更争用同一个Ubuntu运行池。"""
         self.assertIn("runs-on: macos-latest", self.workflow)
+
+
+class TestPagesWorkflow(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.workflow = PAGES_WORKFLOW.read_text(encoding="utf-8")
+
+    def test_pages_deploy_uses_independent_runner_pool(self):
+        self.assertIn("runs-on: macos-latest", self.workflow)
+
+    def test_pages_deploy_has_required_permissions_and_actions(self):
+        self.assertIn("pages: write", self.workflow)
+        self.assertIn("id-token: write", self.workflow)
+        self.assertIn("actions/configure-pages@v5", self.workflow)
+        self.assertIn("actions/upload-pages-artifact@v4", self.workflow)
+        self.assertIn("actions/deploy-pages@v4", self.workflow)
+
+    def test_delayed_pages_run_deploys_latest_main(self):
+        self.assertIn("ref: main", self.workflow)
 
 
 if __name__ == "__main__":
