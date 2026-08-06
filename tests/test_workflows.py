@@ -102,6 +102,10 @@ class TestCloudBaseWorkflow(unittest.TestCase):
         deploy = self.workflow.index("tcb hosting deploy", checkout)
         self.assertIn("ref: main", self.workflow[checkout:deploy])
 
+    def test_mirror_deploy_uses_independent_runner_pool(self):
+        """国内镜像部署不应与主日更争用同一个Ubuntu运行池。"""
+        self.assertIn("runs-on: macos-latest", self.workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
