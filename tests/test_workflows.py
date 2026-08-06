@@ -6,6 +6,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 DAILY_WORKFLOW = ROOT / ".github" / "workflows" / "daily.yml"
+FALLBACK_WORKFLOW = (ROOT / ".github" / "workflows" /
+                     "daily-runner-fallback.yml")
 
 
 class TestDailyWorkflow(unittest.TestCase):
@@ -54,6 +56,37 @@ class TestDailyWorkflow(unittest.TestCase):
                 f"cron: '17 {utc_hour} * * 1-5'",
                 self.workflow,
             )
+
+    def test_delayed_runs_are_queued_instead_of_replaced(self):
+        self.assertIn("queue: max", self.workflow)
+        self.assertIn("cancel-in-progress: false", self.workflow)
+
+    def test_reusable_workflow_accepts_alternate_runner(self):
+        self.assertIn("workflow_call:", self.workflow)
+        self.assertGreaterEqual(
+            self.workflow.count("inputs.runner || 'ubuntu-latest'"), 3)
+
+    def test_parallel_runner_publications_rebase_before_push(self):
+        pull = self.workflow.index("git pull --rebase origin main")
+        push = self.workflow.index("git push", pull)
+        self.assertLess(pull, push)
+
+
+class TestRunnerFallbackWorkflow(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.workflow = FALLBACK_WORKFLOW.read_text(encoding="utf-8")
+
+    def test_failed_primary_run_uses_macos_pool(self):
+        self.assertIn("workflow_run:", self.workflow)
+        self.assertIn("- daily-update", self.workflow)
+        self.assertIn("github.event.workflow_run.conclusion == 'failure'",
+                      self.workflow)
+        self.assertIn("uses: ./.github/workflows/daily.yml", self.workflow)
+        self.assertIn("runner: macos-latest", self.workflow)
+
+    def test_fallback_inherits_deployment_secrets(self):
+        self.assertIn("secrets: inherit", self.workflow)
 
 
 if __name__ == "__main__":
