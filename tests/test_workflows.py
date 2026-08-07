@@ -52,6 +52,19 @@ class TestDailyWorkflow(unittest.TestCase):
             self.workflow,
         )
 
+    def test_pages_deploy_is_chained_to_actual_publication(self):
+        """机器人提交不会触发push工作流，Pages须在同一流水线发布。"""
+        pages_job = self.workflow.index("\n  deploy-pages:")
+        pages_workflow = self.workflow[pages_job:]
+        self.assertIn(
+            "if: needs.update.outputs.published == 'true'",
+            pages_workflow,
+        )
+        self.assertIn("runs-on: macos-latest", pages_workflow)
+        self.assertIn("actions/upload-pages-artifact@v4", pages_workflow)
+        self.assertIn("actions/deploy-pages@v4", pages_workflow)
+        self.assertIn("ref: main", pages_workflow)
+
     def test_has_redundant_attempts_around_official_release(self):
         """23点披露窗口前后须有冗余，降低GitHub定时排队造成的延迟。"""
         for utc_hour in range(12, 19):
@@ -90,6 +103,10 @@ class TestRunnerFallbackWorkflow(unittest.TestCase):
 
     def test_fallback_inherits_deployment_secrets(self):
         self.assertIn("secrets: inherit", self.workflow)
+
+    def test_fallback_can_publish_github_pages(self):
+        self.assertIn("pages: write", self.workflow)
+        self.assertIn("id-token: write", self.workflow)
 
 
 class TestCloudBaseWorkflow(unittest.TestCase):
