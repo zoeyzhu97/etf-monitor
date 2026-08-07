@@ -28,6 +28,8 @@ concurrency:
 permissions:
   contents: write
   issues: write
+  pages: write
+  id-token: write
 
 jobs:
   update:
@@ -162,3 +164,45 @@ jobs:
         env:
           TCB_ENV_ID: ${{ secrets.TCB_ENV_ID }}
         run: tcb hosting deploy "$RUNNER_TEMP/etf-monitor-site" / -e "$TCB_ENV_ID"
+
+  # GITHUB_TOKEN 推送不会触发 deploy-pages.yml，因此 Pages 也必须在本次
+  # 成功发布后直接部署，确保两个网站保持同一天的完整快照。
+  deploy-pages:
+    needs: update
+    if: needs.update.outputs.published == 'true'
+    runs-on: macos-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: deploy-pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out newly published data
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Prepare GitHub Pages artifact
+        run: |
+          mkdir -p "$RUNNER_TEMP/etf-monitor-pages"
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            ./ "$RUNNER_TEMP/etf-monitor-pages/"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/etf-monitor-pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
