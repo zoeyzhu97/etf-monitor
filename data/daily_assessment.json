@@ -28,17 +28,17 @@
       "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 2,
-        "falling_etfs": 3,
-        "net_change_yi": -4.17,
+        "rising_etfs": 3,
+        "falling_etfs": 1,
+        "net_change_yi": 26.01,
         "latest_date": "2026-08-10",
         "earliest_latest_date": "2026-08-10",
-        "latest_verified": 5,
+        "latest_verified": 2,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
         "consecutive_inflow_etfs": 0,
-        "consecutive_outflow_etfs": 3
+        "consecutive_outflow_etfs": 1
       }
     },
     {
@@ -141,15 +141,15 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 34,
+      "score": 28,
       "level": "中",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔减少",
-          "points": 9,
+          "points": 3,
           "max": 25,
-          "detail": "3/8只可比ETF"
+          "detail": "1/8只可比ETF"
         },
         {
           "label": "指数同时跌破20日和60日均线",
@@ -203,8 +203,8 @@
       ]
     },
     "data_confidence": {
-      "score": 55,
-      "level": "中等",
+      "score": 40,
+      "level": "偏低",
       "alert": true,
       "issues": [
         "部分ETF最新记录不是已核验数据",
@@ -213,9 +213,9 @@
       "components": [
         {
           "label": "最新ETF记录已核验",
-          "points": 25,
+          "points": 10,
           "max": 40,
-          "detail": "5/8只ETF"
+          "detail": "2/8只ETF"
         },
         {
           "label": "ETF与指数日期及时",
