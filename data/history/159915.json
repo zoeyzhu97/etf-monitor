@@ -4132,5 +4132,11 @@
     "total_shares_yi": 177.45,
     "source": "szse_official",
     "verified": true
+  },
+  {
+    "date": "2026-08-24",
+    "total_shares_yi": 183.16,
+    "source": "szse_official",
+    "verified": true
   }
 ]

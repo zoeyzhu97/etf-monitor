@@ -2,7 +2,7 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-08-21",
+  "as_of": "2026-08-24",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
@@ -13,9 +13,9 @@
     "label": "信号尚未共同收敛",
     "plain": "四个模型没有至少3个同向，最诚实的结论是继续观察。",
     "counts": {
-      "support": 1,
+      "support": 2,
       "risk": 2,
-      "neutral": 1
+      "neutral": 0
     },
     "rule": "至少3/4个模型同向才称为共同收敛"
   },
@@ -23,63 +23,63 @@
     {
       "id": "share_flow",
       "name": "模型1 · ETF份额流向",
-      "vote": "risk",
-      "title": "多数ETF总份额减少",
-      "explanation": "7/8只ETF最近一条有效记录减少，合计约减少12.0亿份。若连续多日发生，才值得提高警惕。",
+      "vote": "support",
+      "title": "多数ETF总份额增加",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加23.7亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 1,
-        "falling_etfs": 7,
-        "net_change_yi": -11.98,
-        "latest_date": "2026-08-21",
-        "earliest_latest_date": "2026-08-21",
+        "rising_etfs": 7,
+        "falling_etfs": 1,
+        "net_change_yi": 23.71,
+        "latest_date": "2026-08-24",
+        "earliest_latest_date": "2026-08-24",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
         "consecutive_inflow_etfs": 1,
-        "consecutive_outflow_etfs": 0
+        "consecutive_outflow_etfs": 1
       }
     },
     {
       "id": "trend",
       "name": "模型2 · 三大指数趋势",
-      "vote": "neutral",
-      "title": "三大指数趋势有分歧",
-      "explanation": "上证、深证、科创50没有形成统一趋势，仍处于观察区。",
+      "vote": "risk",
+      "title": "多数指数跌到中短期均线下方",
+      "explanation": "3/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-08-21",
-          "close": 3905.2,
-          "ma20": 3893.28,
-          "ma60": 3970.37,
-          "above_ma20": true,
-          "above_ma60": false,
-          "return20": 0.0239,
-          "drawdown120": -0.0795,
-          "volatility20": 0.1448
-        },
-        "399001": {
-          "date": "2026-08-21",
-          "close": 14094.17,
-          "ma20": 14049.97,
-          "ma60": 14834.77,
-          "above_ma20": true,
-          "above_ma60": false,
-          "return20": 0.0232,
-          "drawdown120": -0.1392,
-          "volatility20": 0.3404
-        },
-        "000688": {
-          "date": "2026-08-21",
-          "close": 1653.56,
-          "ma20": 1694.31,
-          "ma60": 1813.97,
+          "date": "2026-08-24",
+          "close": 3882.01,
+          "ma20": 3894.47,
+          "ma60": 3967.26,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0748,
-          "drawdown120": -0.2511,
-          "volatility20": 0.5265
+          "return20": 0.0062,
+          "drawdown120": -0.085,
+          "volatility20": 0.1417
+        },
+        "399001": {
+          "date": "2026-08-24",
+          "close": 13794.29,
+          "ma20": 14032.25,
+          "ma60": 14805.09,
+          "above_ma20": false,
+          "above_ma60": false,
+          "return20": -0.0251,
+          "drawdown120": -0.1575,
+          "volatility20": 0.3355
+        },
+        "000688": {
+          "date": "2026-08-24",
+          "close": 1602.34,
+          "ma20": 1684.03,
+          "ma60": 1811.49,
+          "above_ma20": false,
+          "above_ma60": false,
+          "return20": -0.1137,
+          "drawdown120": -0.2743,
+          "volatility20": 0.5318
         }
       }
     },
@@ -141,21 +141,21 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 25,
+      "score": 45,
       "level": "中",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔减少",
-          "points": 0,
+          "points": 3,
           "max": 25,
-          "detail": "0/8只可比ETF"
+          "detail": "1/8只可比ETF"
         },
         {
           "label": "指数同时跌破20日和60日均线",
-          "points": 8,
+          "points": 25,
           "max": 25,
-          "detail": "1/3个指数"
+          "detail": "3/3个指数"
         },
         {
           "label": "恐慌压力",
@@ -226,7 +226,7 @@
           "label": "持仓参考线在120天内",
           "points": 0,
           "max": 30,
-          "detail": "已233天"
+          "detail": "已236天"
         }
       ]
     },
@@ -239,11 +239,11 @@
   },
   "two_sided": {
     "buy_side": {
-      "label": "买入/承接侧满足 0/3 项",
+      "label": "买入/承接侧满足 1/3 项",
       "checks": [
         {
           "label": "多数ETF份额增加",
-          "met": false
+          "met": true
         },
         {
           "label": "多数指数站上20日与60日均线",
@@ -261,11 +261,11 @@
       "checks": [
         {
           "label": "多数ETF份额减少",
-          "met": true
+          "met": false
         },
         {
           "label": "多数指数跌破20日与60日均线",
-          "met": false
+          "met": true
         },
         {
           "label": "多数指数仍有明显恐慌压力",
@@ -279,8 +279,8 @@
   "action_guide": {
     "level": "等待级：证据不足",
     "why": [
-      "多数ETF总份额减少",
-      "三大指数趋势有分歧"
+      "多数ETF总份额增加",
+      "多数指数跌到中短期均线下方"
     ],
     "checklist": [
       "不根据单一红色区域、单日申购或一条政策新闻做决定。",
