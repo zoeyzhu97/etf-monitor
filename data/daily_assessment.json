@@ -28,12 +28,12 @@
       "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 5,
+        "rising_etfs": 4,
         "falling_etfs": 3,
-        "net_change_yi": -0.8,
+        "net_change_yi": 9.19,
         "latest_date": "2026-08-26",
         "earliest_latest_date": "2026-08-26",
-        "latest_verified": 8,
+        "latest_verified": 2,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
@@ -203,18 +203,19 @@
       ]
     },
     "data_confidence": {
-      "score": 70,
-      "level": "中等",
+      "score": 40,
+      "level": "偏低",
       "alert": true,
       "issues": [
+        "部分ETF最新记录不是已核验数据",
         "持仓参考线超过120天未更新"
       ],
       "components": [
         {
           "label": "最新ETF记录已核验",
-          "points": 40,
+          "points": 10,
           "max": 40,
-          "detail": "8/8只ETF"
+          "detail": "2/8只ETF"
         },
         {
           "label": "ETF与指数日期及时",
@@ -231,9 +232,9 @@
       ]
     },
     "general_signal": {
-      "state": "wait",
-      "headline": "方向不完整，继续观察",
-      "guidance": "风险与修复都未形成完整组合，暂不根据单一信号行动。 数据提示：持仓参考线超过120天未更新。",
+      "state": "data_first",
+      "headline": "数据不足，暂不加强买卖判断",
+      "guidance": "先修复数据源或更新持仓参考线，再使用风险分和修复分。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
