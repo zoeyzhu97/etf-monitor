@@ -2,7 +2,7 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-08-26",
+  "as_of": "2026-08-27",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
@@ -23,16 +23,16 @@
     {
       "id": "share_flow",
       "name": "模型1 · ETF份额流向",
-      "vote": "neutral",
-      "title": "ETF份额方向不一致",
-      "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
+      "vote": "risk",
+      "title": "多数ETF总份额减少",
+      "explanation": "6/8只ETF最近一条有效记录减少，合计约减少14.8亿份。若连续多日发生，才值得提高警惕。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 5,
-        "falling_etfs": 3,
-        "net_change_yi": -0.8,
-        "latest_date": "2026-08-26",
-        "earliest_latest_date": "2026-08-26",
+        "rising_etfs": 2,
+        "falling_etfs": 6,
+        "net_change_yi": -14.84,
+        "latest_date": "2026-08-27",
+        "earliest_latest_date": "2026-08-27",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
@@ -44,42 +44,42 @@
     {
       "id": "trend",
       "name": "模型2 · 三大指数趋势",
-      "vote": "risk",
-      "title": "多数指数跌到中短期均线下方",
-      "explanation": "2/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
+      "vote": "neutral",
+      "title": "三大指数趋势有分歧",
+      "explanation": "上证、深证、科创50没有形成统一趋势，仍处于观察区。",
       "metrics": {
         "000001": {
-          "date": "2026-08-26",
-          "close": 3912.52,
-          "ma20": 3902.47,
-          "ma60": 3961.75,
+          "date": "2026-08-27",
+          "close": 3956.57,
+          "ma20": 3910.07,
+          "ma60": 3959.62,
           "above_ma20": true,
           "above_ma60": false,
-          "return20": 0.022,
-          "drawdown120": -0.0778,
-          "volatility20": 0.1356
+          "return20": 0.0399,
+          "drawdown120": -0.0674,
+          "volatility20": 0.1371
         },
         "399001": {
-          "date": "2026-08-26",
-          "close": 13841.33,
-          "ma20": 14053.2,
-          "ma60": 14749.35,
+          "date": "2026-08-27",
+          "close": 14048.88,
+          "ma20": 14091.35,
+          "ma60": 14721.75,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": 0.0134,
-          "drawdown120": -0.1546,
-          "volatility20": 0.2939
+          "return20": 0.0574,
+          "drawdown120": -0.1419,
+          "volatility20": 0.2791
         },
         "000688": {
-          "date": "2026-08-26",
-          "close": 1632.02,
-          "ma20": 1677.25,
-          "ma60": 1809.53,
-          "above_ma20": false,
+          "date": "2026-08-27",
+          "close": 1693.48,
+          "ma20": 1682.5,
+          "ma60": 1808.98,
+          "above_ma20": true,
           "above_ma60": false,
-          "return20": -0.0278,
-          "drawdown120": -0.2608,
-          "volatility20": 0.4926
+          "return20": 0.0661,
+          "drawdown120": -0.233,
+          "volatility20": 0.4702
         }
       }
     },
@@ -141,7 +141,7 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 34,
+      "score": 25,
       "level": "中",
       "alert": false,
       "components": [
@@ -153,9 +153,9 @@
         },
         {
           "label": "指数同时跌破20日和60日均线",
-          "points": 17,
+          "points": 8,
           "max": 25,
-          "detail": "2/3个指数"
+          "detail": "1/3个指数"
         },
         {
           "label": "恐慌压力",
@@ -226,7 +226,7 @@
           "label": "持仓参考线在120天内",
           "points": 0,
           "max": 30,
-          "detail": "已238天"
+          "detail": "已239天"
         }
       ]
     },
@@ -261,11 +261,11 @@
       "checks": [
         {
           "label": "多数ETF份额减少",
-          "met": false
+          "met": true
         },
         {
           "label": "多数指数跌破20日与60日均线",
-          "met": true
+          "met": false
         },
         {
           "label": "多数指数仍有明显恐慌压力",
@@ -279,8 +279,8 @@
   "action_guide": {
     "level": "等待级：证据不足",
     "why": [
-      "ETF份额方向不一致",
-      "多数指数跌到中短期均线下方"
+      "多数ETF总份额减少",
+      "三大指数趋势有分歧"
     ],
     "checklist": [
       "不根据单一红色区域、单日申购或一条政策新闻做决定。",
