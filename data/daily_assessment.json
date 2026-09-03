@@ -28,9 +28,9 @@
       "explanation": "各ETF有增有减，暂时不能从份额流向得到统一方向。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 3,
+        "rising_etfs": 2,
         "falling_etfs": 0,
-        "net_change_yi": 5.29,
+        "net_change_yi": 3.57,
         "latest_date": "2026-09-03",
         "earliest_latest_date": "2026-09-03",
         "latest_verified": 2,
