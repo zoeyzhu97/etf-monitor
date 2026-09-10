@@ -4213,8 +4213,8 @@
   },
   {
     "date": "2026-09-10",
-    "total_shares_yi": 113.85,
-    "source": "eastmoney_f84",
-    "verified": false
+    "total_shares_yi": 113.78,
+    "source": "sse_official_shares",
+    "verified": true
   }
 ]
