@@ -2,7 +2,7 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-09-15",
+  "as_of": "2026-09-16",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
@@ -30,15 +30,15 @@
         "comparable_etfs": 8,
         "rising_etfs": 4,
         "falling_etfs": 4,
-        "net_change_yi": -1.72,
-        "latest_date": "2026-09-15",
-        "earliest_latest_date": "2026-09-15",
+        "net_change_yi": 9.43,
+        "latest_date": "2026-09-16",
+        "earliest_latest_date": "2026-09-16",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 4,
-        "consecutive_outflow_etfs": 1
+        "consecutive_inflow_etfs": 3,
+        "consecutive_outflow_etfs": 0
       }
     },
     {
@@ -46,40 +46,40 @@
       "name": "模型2 · 三大指数趋势",
       "vote": "risk",
       "title": "多数指数跌到中短期均线下方",
-      "explanation": "3/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
+      "explanation": "2/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-09-15",
-          "close": 3864.28,
-          "ma20": 3923.64,
-          "ma60": 3933.06,
+          "date": "2026-09-16",
+          "close": 3891.6,
+          "ma20": 3923.5,
+          "ma60": 3929.4,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0316,
-          "drawdown120": -0.0892,
-          "volatility20": 0.118
+          "return20": -0.0007,
+          "drawdown120": -0.0827,
+          "volatility20": 0.0892
         },
         "399001": {
-          "date": "2026-09-15",
-          "close": 13287.97,
-          "ma20": 13747.22,
-          "ma60": 14328.03,
+          "date": "2026-09-16",
+          "close": 13454.74,
+          "ma20": 13725.45,
+          "ma60": 14284.76,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0913,
-          "drawdown120": -0.1884,
-          "volatility20": 0.2283
+          "return20": -0.0313,
+          "drawdown120": -0.1782,
+          "volatility20": 0.1661
         },
         "000688": {
-          "date": "2026-09-15",
-          "close": 1551.96,
-          "ma20": 1614.8,
-          "ma60": 1776.0,
-          "above_ma20": false,
+          "date": "2026-09-16",
+          "close": 1616.19,
+          "ma20": 1612.24,
+          "ma60": 1769.78,
+          "above_ma20": true,
           "above_ma60": false,
-          "return20": -0.1334,
-          "drawdown120": -0.2971,
-          "volatility20": 0.3508
+          "return20": -0.0308,
+          "drawdown120": -0.268,
+          "volatility20": 0.3107
         }
       }
     },
@@ -141,21 +141,21 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 45,
+      "score": 34,
       "level": "中",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔减少",
-          "points": 3,
+          "points": 0,
           "max": 25,
-          "detail": "1/8只可比ETF"
+          "detail": "0/8只可比ETF"
         },
         {
           "label": "指数同时跌破20日和60日均线",
-          "points": 25,
+          "points": 17,
           "max": 25,
-          "detail": "3/3个指数"
+          "detail": "2/3个指数"
         },
         {
           "label": "恐慌压力",
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 12,
+      "score": 9,
       "level": "弱",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 12,
+          "points": 9,
           "max": 25,
-          "detail": "4/8只可比ETF"
+          "detail": "3/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",
@@ -226,7 +226,7 @@
           "label": "持仓参考线在120天内",
           "points": 0,
           "max": 30,
-          "detail": "已258天"
+          "detail": "已259天"
         }
       ]
     },
