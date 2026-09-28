@@ -94,6 +94,20 @@ class TestOfficialShareBackfill(unittest.TestCase):
 
 
 class TestDataFreshness(unittest.TestCase):
+    def test_mid_autumn_holiday_uses_previous_trading_day(self):
+        self.assertEqual(
+            expected_trading_date(datetime.date(2026, 9, 25)),
+            "2026-09-24",
+        )
+        self.assertEqual(
+            expected_trading_date(datetime.date(2026, 9, 27)),
+            "2026-09-24",
+        )
+        self.assertEqual(
+            expected_trading_date(datetime.date(2026, 9, 28)),
+            "2026-09-28",
+        )
+
     def test_weekend_uses_previous_trading_day(self):
         self.assertEqual(
             expected_trading_date(datetime.date(2026, 7, 19)),
