@@ -69,7 +69,7 @@ python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
 - 新增监控标的：在 `baselines.json` 的 `etfs` 数组追加一项即可。
 - 节假日表：每日任务先从上交所年度休市安排同步到 `data/holidays.json`。
   官方网站短时不可用时沿用已同步的当年表；新年度没有可用日历时会明确报错，
-  不会把休市日误判为数据抓取失败。
+  不会把休市日误判为数据抓取失败。休市日不重新计算或发布行情评估。
 - 事件库：`data/bottom_events.json`（图上标注）与
   `data/intervention_samples.json`（事件研究样本），标记
   `"verify": true` 的条目需核实后转为 false。

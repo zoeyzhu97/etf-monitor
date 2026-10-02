@@ -35,6 +35,15 @@ class TestDailyWorkflow(unittest.TestCase):
         self.assertLess(calendar, fetch)
         self.assertLess(calendar, freshness)
 
+    def test_market_jobs_are_skipped_on_exchange_holidays(self):
+        condition = "if: steps.calendar.outputs.trading_day == 'true'"
+        for step in (
+                "- name: Fetch ETF shares",
+                "- name: Fetch index daily (incremental)",
+                "- name: Check ETF data freshness"):
+            start = self.workflow.index(step)
+            self.assertIn(condition, self.workflow[start:start + 180], step)
+
     def test_publish_steps_require_complete_etf_snapshot(self):
         """衍生结果和提交都必须受完整性校验保护。"""
         required_condition = "if: steps.freshness.outcome == 'success'"

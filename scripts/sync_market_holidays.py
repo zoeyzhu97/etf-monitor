@@ -3,12 +3,13 @@
 import argparse
 import datetime
 from html.parser import HTMLParser
+import os
 import re
 import sys
 
 import requests
 
-from utils import load_json, save_json
+from utils import is_trading_day, load_json, save_json
 
 SSE_CALENDAR_URL = "https://www.sse.com.cn/disclosure/dealinstruc/closed/"
 YEAR_PATTERN = re.compile(r"<strong>\s*(\d{4})年休市安排\s*</strong>")
@@ -111,6 +112,13 @@ def main():
     except RuntimeError as exc:
         print(f"[休市表错误] {exc}", file=sys.stderr)
         return 1
+    trading_day = is_trading_day(args.as_of)
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    if output_path:
+        with open(output_path, "a", encoding="utf-8") as output:
+            output.write(f"trading_day={str(trading_day).lower()}\n")
+    if not trading_day:
+        print(f"[休市表] {args.as_of} 非交易日，跳过行情更新与发布")
     return 0
 
 

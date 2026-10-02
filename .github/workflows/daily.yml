@@ -46,17 +46,21 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-backfill.txt || echo "akshare 安装失败, 指数增量将跳过"
       - name: Sync official market holidays
+        id: calendar
         run: python scripts/sync_market_holidays.py
       - name: Fetch ETF shares
+        if: steps.calendar.outputs.trading_day == 'true'
         run: python scripts/fetch_etf_shares.py
         continue-on-error: true
       - name: Fetch index daily (incremental)
+        if: steps.calendar.outputs.trading_day == 'true'
         run: python scripts/fetch_index_daily.py || echo "指数更新失败, 保留旧数据"
       # 所有ETF必须先到达同一应有交易日，才生成衍生数据并对外发布。
       # 早期抓取若遇到深交所晚披露，runner 中的半成品会随任务结束丢弃，
       # main 分支和两个网站继续保留上一交易日的完整快照。
       - name: Check ETF data freshness
         id: freshness
+        if: steps.calendar.outputs.trading_day == 'true'
         run: python scripts/check_data_freshness.py
         continue-on-error: true
       - name: Event study
