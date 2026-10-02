@@ -45,8 +45,9 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -r requirements-backfill.txt || echo "akshare 安装失败, 指数增量将跳过"
+      - name: Sync official market holidays
+        run: python scripts/sync_market_holidays.py
       - name: Fetch ETF shares
-        id: fetch
         run: python scripts/fetch_etf_shares.py
         continue-on-error: true
       - name: Fetch index daily (incremental)
@@ -85,17 +86,6 @@ jobs:
             git push
             echo "published=true" >> "$GITHUB_OUTPUT"
           fi
-      - name: Alert on fetch failure
-        if: steps.fetch.outcome == 'failure'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `抓取失败告警 ${new Date().toISOString().slice(0,10)}`,
-              body: '份额抓取脚本退出码非0, 请检查数据源字段是否变动。'
-            });
       - name: Alert on stale ETF date
         if: >-
           steps.freshness.outcome == 'failure' &&

@@ -67,8 +67,9 @@ python3 scripts/daily_comment.py      # 结合四模型结果生成当日解读
   `data/baselines.json` 并更新 `baseline_date`。页面会在基线超过
   120 天未更新时显示提醒。
 - 新增监控标的：在 `baselines.json` 的 `etfs` 数组追加一项即可。
-- 节假日表：`data/holidays.json` 每年初补充当年节假日（或改用
-  chinese_calendar 库）。
+- 节假日表：每日任务先从上交所年度休市安排同步到 `data/holidays.json`。
+  官方网站短时不可用时沿用已同步的当年表；新年度没有可用日历时会明确报错，
+  不会把休市日误判为数据抓取失败。
 - 事件库：`data/bottom_events.json`（图上标注）与
   `data/intervention_samples.json`（事件研究样本），标记
   `"verify": true` 的条目需核实后转为 false。

@@ -28,6 +28,13 @@ class TestDailyWorkflow(unittest.TestCase):
                 "- name: Commit & push"):
             self.assertLess(gate, self.workflow.index(step), step)
 
+    def test_official_calendar_is_synced_before_fetch_and_freshness_check(self):
+        calendar = self.workflow.index("- name: Sync official market holidays")
+        fetch = self.workflow.index("- name: Fetch ETF shares")
+        freshness = self.workflow.index("- name: Check ETF data freshness")
+        self.assertLess(calendar, fetch)
+        self.assertLess(calendar, freshness)
+
     def test_publish_steps_require_complete_etf_snapshot(self):
         """衍生结果和提交都必须受完整性校验保护。"""
         required_condition = "if: steps.freshness.outcome == 'success'"
