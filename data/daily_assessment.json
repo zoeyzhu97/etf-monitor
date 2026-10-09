@@ -25,15 +25,15 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "5/8只ETF最近一条有效记录增加，合计约增加40.1亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加44.4亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 5,
+        "rising_etfs": 7,
         "falling_etfs": 1,
-        "net_change_yi": 40.15,
+        "net_change_yi": 44.43,
         "latest_date": "2026-10-09",
         "earliest_latest_date": "2026-10-09",
-        "latest_verified": 6,
+        "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 0,
@@ -203,19 +203,18 @@
       ]
     },
     "data_confidence": {
-      "score": 60,
+      "score": 70,
       "level": "中等",
       "alert": true,
       "issues": [
-        "部分ETF最新记录不是已核验数据",
         "持仓参考线超过120天未更新"
       ],
       "components": [
         {
           "label": "最新ETF记录已核验",
-          "points": 30,
+          "points": 40,
           "max": 40,
-          "detail": "6/8只ETF"
+          "detail": "8/8只ETF"
         },
         {
           "label": "ETF与指数日期及时",
@@ -234,7 +233,7 @@
     "general_signal": {
       "state": "defensive",
       "headline": "偏防守，等待风险回落",
-      "guidance": "当前不适合仅凭单日ETF份额增加去抄底；等指数和波动至少再确认一项。 数据提示：部分ETF最新记录不是已核验数据；持仓参考线超过120天未更新。",
+      "guidance": "当前不适合仅凭单日ETF份额增加去抄底；等指数和波动至少再确认一项。 数据提示：持仓参考线超过120天未更新。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
