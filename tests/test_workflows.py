@@ -56,6 +56,18 @@ class TestDailyWorkflow(unittest.TestCase):
             following = self.workflow[start:start + 220]
             self.assertIn(required_condition, following, step)
 
+    def test_fetch_and_freshness_use_the_calendar_date(self):
+        for step in ("Fetch ETF shares", "Check ETF data freshness"):
+            body = self.workflow.split(f"- name: {step}\n", 1)[1].split("\n      - name:", 1)[0]
+            self.assertIn("DATA_AS_OF: ${{ steps.calendar.outputs.as_of }}", body)
+            self.assertIn('--as-of "$DATA_AS_OF"', body)
+
+    def test_stale_fallback_cannot_report_false_success(self):
+        for step in ("Alert on stale ETF date", "Fail final run when ETF data is stale"):
+            body = self.workflow.split(f"- name: {step}\n", 1)[1].split("\n      - name:", 1)[0]
+            self.assertIn("steps.freshness.outcome == 'failure'", body)
+            self.assertIn("github.event_name == 'workflow_run'", body)
+
     def test_cloudbase_deploy_is_chained_to_actual_publication(self):
         """机器人提交不会触发push工作流，国内镜像须在同一流水线部署。"""
         self.assertIn(
