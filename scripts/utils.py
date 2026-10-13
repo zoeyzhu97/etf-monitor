@@ -3,9 +3,23 @@
 import json
 import os
 import datetime
+from zoneinfo import ZoneInfo
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
+
+
+def market_data_date(now=None):
+    """本轮盘后数据所属的自然日；北京时间15点前仍检查前一日。
+
+    与运行器时区无关。周末、休市日的处理由交易日历负责。
+    """
+    if now is None:
+        now = datetime.datetime.now(datetime.timezone.utc)
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError("market_data_date requires a timezone-aware datetime")
+    beijing = now.astimezone(ZoneInfo("Asia/Shanghai"))
+    return (beijing - datetime.timedelta(hours=15)).date()
 
 
 def load_json(rel_path, default=None):

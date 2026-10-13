@@ -9,6 +9,7 @@
 CKLSGM 规模/净值反推路径只在直接份额接口不可用时兜底。
 任何来源都不允许把空值或 0 写入历史。
 """
+import argparse
 import datetime
 import functools
 import math
@@ -18,7 +19,8 @@ import time
 
 import requests
 
-from utils import load_json, append_history, gap_to_baseline, is_trading_day
+from utils import (load_json, append_history, gap_to_baseline, is_trading_day,
+                   market_data_date)
 
 EASTMONEY_URLS = (
     "https://push2.eastmoney.com/api/qt/stock/get",
@@ -313,7 +315,7 @@ def fetch_official(code: str, exchange: str, as_of=None):
     上交所实测请求（TOT_VOL 为万份）：
     https://query.sse.com.cn/commonQuery.do?isPagination=true&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&pageHelp.pageSize=2000&pageHelp.pageNo=1&STAT_DATE=2026-07-20
     """
-    end_date = _as_date(as_of or datetime.date.today())
+    end_date = _as_date(as_of or market_data_date())
     start_date = end_date - datetime.timedelta(days=OFFICIAL_LOOKBACK_DAYS)
     try:
         if exchange == "SZ":
@@ -346,8 +348,12 @@ def fetch_official(code: str, exchange: str, as_of=None):
         return None, None, None
 
 
-def main():
-    today = datetime.date.today()
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--as-of", type=datetime.date.fromisoformat,
+                        help="本轮数据基准日；默认按北京时间15点收盘界限确定。")
+    args = parser.parse_args(argv)
+    today = args.as_of or market_data_date()
     if not is_trading_day(today):
         print(f"{today} 非交易日, 跳过")
         return 0

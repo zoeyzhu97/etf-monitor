@@ -9,7 +9,7 @@ import sys
 
 import requests
 
-from utils import is_trading_day, load_json, save_json
+from utils import is_trading_day, load_json, save_json, market_data_date
 
 SSE_CALENDAR_URL = "https://www.sse.com.cn/disclosure/dealinstruc/closed/"
 YEAR_PATTERN = re.compile(r"<strong>\s*(\d{4})年休市安排\s*</strong>")
@@ -102,11 +102,12 @@ def sync(as_of):
         print(f"[休市表] 上交所 {year} 年休市日期已是最新")
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--as-of", type=datetime.date.fromisoformat,
-                        default=datetime.datetime.now(datetime.timezone.utc).date())
-    args = parser.parse_args()
+                        default=None)
+    args = parser.parse_args(argv)
+    args.as_of = args.as_of or market_data_date()
     try:
         sync(args.as_of)
     except RuntimeError as exc:
@@ -117,6 +118,8 @@ def main():
     if output_path:
         with open(output_path, "a", encoding="utf-8") as output:
             output.write(f"trading_day={str(trading_day).lower()}\n")
+            output.write(f"as_of={args.as_of.isoformat()}\n")
+    print(f"[休市表] 本轮数据基准日：{args.as_of}")
     if not trading_day:
         print(f"[休市表] {args.as_of} 非交易日，跳过行情更新与发布")
     return 0

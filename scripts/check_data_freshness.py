@@ -8,7 +8,7 @@ import argparse
 import datetime
 import os
 
-from utils import is_trading_day, load_history, load_json
+from utils import is_trading_day, load_history, load_json, market_data_date
 
 
 def expected_trading_date(as_of):
@@ -48,11 +48,11 @@ def main(argv=None):
     parser.add_argument(
         "--as-of",
         type=datetime.date.fromisoformat,
-        default=datetime.date.today(),
-        help="按 UTC 日期检查，默认为运行日。",
+        default=None,
+        help="指定检查基准日；默认按北京时间收盘界限确定，15点前检查前一日。",
     )
     args = parser.parse_args(argv)
-    expected = expected_trading_date(args.as_of)
+    expected = expected_trading_date(args.as_of or market_data_date())
     conf = load_json("baselines.json", default={})
     etfs = conf.get("etfs", [])
     histories = {etf["code"]: load_history(etf["code"]) for etf in etfs}
