@@ -1,7 +1,7 @@
 name: daily-update-runner-fallback
 
 on:
-  # 主任务若因GitHub托管运行器未分配而失败，自动改用独立的macOS池。
+  # 主任务若因GitHub托管运行器未分配而失败，自动改用独立的macOS Intel池（避免macos-latest指向的ARM容量瓶颈）。
   workflow_run:
     workflows:
       - daily-update
@@ -23,5 +23,5 @@ jobs:
       github.event.workflow_run.conclusion == 'cancelled'
     uses: ./.github/workflows/daily.yml
     with:
-      runner: macos-latest
+      runner: macos-15-intel
     secrets: inherit

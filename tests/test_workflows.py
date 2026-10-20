@@ -2,6 +2,10 @@
 """自动发布工作流的回归测试。"""
 from pathlib import Path
 import unittest
+import os
+import subprocess
+import tempfile
+import textwrap
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,10 +72,10 @@ class TestDailyWorkflow(unittest.TestCase):
             self.assertIn("steps.freshness.outcome == 'failure'", body)
             self.assertIn("github.event_name == 'workflow_run'", body)
 
-    def test_cloudbase_deploy_is_chained_to_actual_publication(self):
+    def test_cloudbase_deploy_is_chained_to_ready_snapshot(self):
         """机器人提交不会触发push工作流，国内镜像须在同一流水线部署。"""
         self.assertIn(
-            "if: needs.update.outputs.published == 'true'",
+            "if: needs.update.outputs.ready == 'true'",
             self.workflow,
         )
         self.assertIn("ref: main", self.workflow)
@@ -80,15 +84,15 @@ class TestDailyWorkflow(unittest.TestCase):
             self.workflow,
         )
 
-    def test_pages_deploy_is_chained_to_actual_publication(self):
+    def test_pages_deploy_is_chained_to_ready_snapshot(self):
         """机器人提交不会触发push工作流，Pages须在同一流水线发布。"""
         pages_job = self.workflow.index("\n  deploy-pages:")
         pages_workflow = self.workflow[pages_job:]
         self.assertIn(
-            "if: needs.update.outputs.published == 'true'",
+            "if: needs.update.outputs.ready == 'true'",
             pages_workflow,
         )
-        self.assertIn("runs-on: macos-latest", pages_workflow)
+        self.assertIn("runs-on: ${{ inputs.runner || 'ubuntu-latest' }}", pages_workflow)
         self.assertIn("actions/upload-pages-artifact@v4", pages_workflow)
         self.assertIn("actions/deploy-pages@v4", pages_workflow)
         self.assertIn("ref: main", pages_workflow)
@@ -116,18 +120,71 @@ class TestDailyWorkflow(unittest.TestCase):
         self.assertLess(pull, push)
 
 
+    def test_every_daily_job_inherits_recovery_runner(self):
+        runners = [line.strip() for line in self.workflow.splitlines()
+                   if line.strip().startswith("runs-on:")]
+        self.assertEqual(runners, ["runs-on: ${{ inputs.runner || 'ubuntu-latest' }}"] * 3)
+
+    def test_commit_step_allows_redeploy_without_new_data(self):
+        """执行真实提交脚本：首次提交和无变化重试都必须放行部署。"""
+        body = self.workflow.split("- name: Commit & push\n", 1)[1].split("\n      - name:", 1)[0]
+        script = textwrap.dedent(body.split("        run: |\n", 1)[1])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            remote = root / "origin.git"
+            checkout = root / "checkout"
+            env = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+
+            def git(*args, cwd=root):
+                subprocess.run(["git", *args], cwd=cwd, env=env, check=True,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            git("init", "--bare", str(remote))
+            git("init", "-b", "main", str(checkout))
+            git("config", "user.name", "test", cwd=checkout)
+            git("config", "user.email", "test@example.invalid", cwd=checkout)
+            (checkout / "data").mkdir()
+            snapshot = checkout / "data" / "snapshot.json"
+            snapshot.write_text('{"date": "2026-10-19"}')
+            git("add", ".", cwd=checkout)
+            git("commit", "-m", "seed", cwd=checkout)
+            git("remote", "add", "origin", str(remote), cwd=checkout)
+            git("push", "-u", "origin", "main", cwd=checkout)
+            snapshot.write_text('{"date": "2026-10-20"}')
+            for expected_published in ("true", "false"):
+                with self.subTest(published=expected_published):
+                    output = root / "outputs"
+                    output.write_text("")
+                    subprocess.run(["bash", "-e", "-o", "pipefail", "-c", script],
+                                   cwd=checkout, env=dict(env, GITHUB_OUTPUT=str(output)),
+                                   check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    self.assertIn("ready=true", output.read_text())
+                    self.assertIn(f"published={expected_published}", output.read_text())
+            # 推送失败时不得放行部署，也不能假报成功。
+            snapshot.write_text('{"date": "2026-10-21"}')
+            git("remote", "set-url", "origin", str(root / "missing.git"), cwd=checkout)
+            output.write_text("")
+            failed = subprocess.run(["bash", "-e", "-o", "pipefail", "-c", script],
+                                    cwd=checkout, env=dict(env, GITHUB_OUTPUT=str(output)),
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertNotIn("ready=true", output.read_text())
+            self.assertIn("ready: ${{ steps.publish.outputs.ready }}", self.workflow)
+            self.assertEqual(self.workflow.count("if: needs.update.outputs.ready == 'true'"), 2)
+
+
 class TestRunnerFallbackWorkflow(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.workflow = FALLBACK_WORKFLOW.read_text(encoding="utf-8")
 
-    def test_failed_primary_run_uses_macos_pool(self):
+    def test_failed_primary_run_uses_independent_intel_pool(self):
         self.assertIn("workflow_run:", self.workflow)
         self.assertIn("- daily-update", self.workflow)
         self.assertIn("github.event.workflow_run.conclusion == 'failure'",
                       self.workflow)
         self.assertIn("uses: ./.github/workflows/daily.yml", self.workflow)
-        self.assertIn("runner: macos-latest", self.workflow)
+        self.assertIn("runner: macos-15-intel", self.workflow)
 
     def test_fallback_inherits_deployment_secrets(self):
         self.assertIn("secrets: inherit", self.workflow)
@@ -148,9 +205,9 @@ class TestCloudBaseWorkflow(unittest.TestCase):
         deploy = self.workflow.index("tcb hosting deploy", checkout)
         self.assertIn("ref: main", self.workflow[checkout:deploy])
 
-    def test_mirror_deploy_uses_independent_runner_pool(self):
-        """国内镜像部署不应与主日更争用同一个Ubuntu运行池。"""
-        self.assertIn("runs-on: macos-latest", self.workflow)
+    def test_mirror_deploy_avoids_constrained_macos_pool(self):
+        """静态部署不需要依赖容量不足的macOS ARM运行池。"""
+        self.assertIn("runs-on: ubuntu-latest", self.workflow)
 
 
 class TestPagesWorkflow(unittest.TestCase):
@@ -158,8 +215,8 @@ class TestPagesWorkflow(unittest.TestCase):
     def setUpClass(cls):
         cls.workflow = PAGES_WORKFLOW.read_text(encoding="utf-8")
 
-    def test_pages_deploy_uses_independent_runner_pool(self):
-        self.assertIn("runs-on: macos-latest", self.workflow)
+    def test_pages_deploy_avoids_constrained_macos_pool(self):
+        self.assertIn("runs-on: ubuntu-latest", self.workflow)
 
     def test_pages_deploy_has_required_permissions_and_actions(self):
         self.assertIn("pages: write", self.workflow)

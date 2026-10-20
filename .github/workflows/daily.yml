@@ -36,8 +36,12 @@ jobs:
     runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
     outputs:
       published: ${{ steps.publish.outputs.published }}
+      ready: ${{ steps.publish.outputs.ready }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -85,7 +89,7 @@ jobs:
           git add data/
           if git diff --cached --quiet; then
             echo "published=false" >> "$GITHUB_OUTPUT"
-            echo "数据已是最新，无需重复发布。"
+            echo "数据已是最新；仍部署完整快照以修复此前失败的发布。"
           else
             git commit -m "data: $(date -u +%F) auto update"
             # macOS兜底与Ubuntu主通道可能前后完成；先吸收先到的提交，
@@ -94,6 +98,8 @@ jobs:
             git push
             echo "published=true" >> "$GITHUB_OUTPUT"
           fi
+          # 只有完整性校验和提交步骤均成功，才允许部署。无新提交也必须能补发。
+          echo "ready=true" >> "$GITHUB_OUTPUT"
       - name: Alert on stale ETF date
         if: >-
           steps.freshness.outcome == 'failure' &&
@@ -128,12 +134,16 @@ jobs:
           exit 1
 
   # 自动任务使用 GITHUB_TOKEN 推送时，GitHub 不会再次触发另一个 push 工作流。
-  # 因此国内镜像必须直接接在本次成功发布之后，不能只依赖 deploy-cloudbase.yml。
+  # 因此国内镜像直接接在完整快照就绪之后；无新提交也重试部署，修复上轮部署失败。
   deploy-cloudbase:
     needs: update
-    if: needs.update.outputs.published == 'true'
+    if: needs.update.outputs.ready == 'true'
     runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
     timeout-minutes: 15
+    concurrency:
+      group: deploy-cloudbase
+      cancel-in-progress: false
+      queue: max
     steps:
       - name: Check out newly published data
         uses: actions/checkout@v4
@@ -165,18 +175,19 @@ jobs:
         run: tcb hosting deploy "$RUNNER_TEMP/etf-monitor-site" / -e "$TCB_ENV_ID"
 
   # GITHUB_TOKEN 推送不会触发 deploy-pages.yml，因此 Pages 也必须在本次
-  # 成功发布后直接部署，确保两个网站保持同一天的完整快照。
+  # 完整快照就绪后直接部署，确保无新提交的后续轮次也能补发失败的网站。
   deploy-pages:
     needs: update
-    if: needs.update.outputs.published == 'true'
-    runs-on: macos-latest
+    if: needs.update.outputs.ready == 'true'
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
     permissions:
       contents: read
       pages: write
       id-token: write
     concurrency:
       group: deploy-pages
-      cancel-in-progress: true
+      cancel-in-progress: false
+      queue: max
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

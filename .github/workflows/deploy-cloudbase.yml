@@ -11,12 +11,13 @@ permissions:
 
 concurrency:
   group: deploy-cloudbase
-  cancel-in-progress: true
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   deploy:
-    # Keep the mirror deployment independent from the primary Ubuntu pool.
-    runs-on: macos-latest
+    # Static deployment does not require macOS.
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Check out repository

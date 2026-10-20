@@ -13,13 +13,13 @@ permissions:
 
 concurrency:
   group: deploy-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   deploy:
-    # Use the independent macOS pool because the standard Pages/Ubuntu build
-    # pool has repeatedly failed to acquire a runner for this repository.
-    runs-on: macos-latest
+    # Static deployment does not require the capacity-constrained macOS ARM pool.
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
