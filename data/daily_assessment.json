@@ -2,7 +2,7 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-10-22",
+  "as_of": "2026-10-23",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
@@ -25,19 +25,19 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "8/8只ETF最近一条有效记录增加，合计约增加153.0亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "8/8只ETF最近一条有效记录增加，合计约增加117.7亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
         "rising_etfs": 8,
         "falling_etfs": 0,
-        "net_change_yi": 153.01,
-        "latest_date": "2026-10-22",
-        "earliest_latest_date": "2026-10-22",
+        "net_change_yi": 117.71,
+        "latest_date": "2026-10-23",
+        "earliest_latest_date": "2026-10-23",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 7,
+        "consecutive_inflow_etfs": 8,
         "consecutive_outflow_etfs": 0
       }
     },
@@ -49,37 +49,37 @@
       "explanation": "3/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-10-22",
-          "close": 3658.03,
-          "ma20": 3813.14,
-          "ma60": 3874.67,
+          "date": "2026-10-23",
+          "close": 3690.47,
+          "ma20": 3803.88,
+          "ma60": 3871.57,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.06,
-          "drawdown120": -0.1378,
-          "volatility20": 0.1203
+          "return20": -0.0478,
+          "drawdown120": -0.1301,
+          "volatility20": 0.127
         },
         "399001": {
-          "date": "2026-10-22",
-          "close": 11357.32,
-          "ma20": 12625.87,
-          "ma60": 13464.28,
+          "date": "2026-10-23",
+          "close": 11673.83,
+          "ma20": 12539.07,
+          "ma60": 13423.46,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.1559,
-          "drawdown120": -0.3063,
-          "volatility20": 0.2097
+          "return20": -0.1295,
+          "drawdown120": -0.287,
+          "volatility20": 0.2439
         },
         "000688": {
-          "date": "2026-10-22",
-          "close": 1305.87,
-          "ma20": 1485.31,
-          "ma60": 1601.79,
+          "date": "2026-10-23",
+          "close": 1345.52,
+          "ma20": 1472.27,
+          "ma60": 1594.39,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.192,
-          "drawdown120": -0.4085,
-          "volatility20": 0.2968
+          "return20": -0.1623,
+          "drawdown120": -0.3906,
+          "volatility20": 0.3284
         }
       }
     },
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 22,
-      "level": "弱",
+      "score": 25,
+      "level": "观察",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 22,
+          "points": 25,
           "max": 25,
-          "detail": "7/8只可比ETF"
+          "detail": "8/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",
@@ -226,7 +226,7 @@
           "label": "持仓参考线在120天内",
           "points": 0,
           "max": 30,
-          "detail": "已295天"
+          "detail": "已296天"
         }
       ]
     },
