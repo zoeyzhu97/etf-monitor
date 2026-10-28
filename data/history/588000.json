@@ -4378,5 +4378,11 @@
     "total_shares_yi": 857.79,
     "source": "sse_official_shares",
     "verified": true
+  },
+  {
+    "date": "2026-10-28",
+    "total_shares_yi": 851.37,
+    "source": "sse_official_shares",
+    "verified": true
   }
 ]
