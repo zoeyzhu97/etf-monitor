@@ -50,3 +50,8 @@ jobs:
         env:
           TCB_ENV_ID: ${{ secrets.TCB_ENV_ID }}
         run: tcb hosting deploy "$RUNNER_TEMP/etf-monitor-site" / -e "$TCB_ENV_ID"
+
+      - name: Verify public CloudBase snapshot
+        env:
+          TCB_ENV_ID: ${{ secrets.TCB_ENV_ID }}
+        run: python3 scripts/verify_published.py --url "https://${TCB_ENV_ID}-1456745624.tcloudbaseapp.com/"
