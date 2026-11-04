@@ -5,8 +5,8 @@
   1) 上交所/深交所官方披露。查询最近 7 天并使用实际披露日期；
   2) 官方源失败时保留历史并重试；无份额日期的东方财富 f84 不写入日线。
 
-上交所 ETFGM 披露的是每日总份额（万份），直接换算为亿份；旧的
-CKLSGM 规模/净值反推路径只在直接份额接口不可用时兜底。
+上交所 ETFGM 披露的是每日总份额（万份），直接换算为亿份。
+每日更新不使用规模/净值反推份额。
 任何来源都不允许把空值或 0 写入历史。
 """
 import argparse
@@ -19,7 +19,7 @@ import time
 
 import requests
 
-from utils import (load_json, append_history, gap_to_baseline, is_trading_day,
+from utils import (load_json, load_history, append_history, gap_to_baseline, is_trading_day,
                    market_data_date)
 
 EASTMONEY_URLS = (
@@ -204,6 +204,7 @@ def _fetch_sse_share_payload_for_date(day_iso):
         "pageHelp.beginPage": 1,
         "pageHelp.endPage": 1,
         "STAT_DATE": day_iso,
+        "_": str(time.time_ns()),
     }
     return _get_json(SSE_SCALE_URL, params, SSE_HEADERS)
 
@@ -211,8 +212,11 @@ def _fetch_sse_share_payload_for_date(day_iso):
 def fetch_sse_share_rows_for_date(as_of, codes=None):
     """读取某日上交所全部 ETF 的直接总份额，再按代码筛选。"""
     day = _as_date(as_of).isoformat()
-    return _parse_sse_share_payload(
+    rows = _parse_sse_share_payload(
         _fetch_sse_share_payload_for_date(day), codes=codes)
+    if any(row["date"] != day for row in rows):
+        raise ValueError(f"上交所返回日期与请求日期{day}不符")
+    return rows
 
 
 def fetch_szse_share_rows(code: str, start_date, end_date):
@@ -256,6 +260,8 @@ def fetch_szse_share_rows(code: str, start_date, end_date):
                 continue
             day, raw_size = row.get("size_date"), row.get("current_size")
             if day and raw_size not in (None, "", "-"):
+                if not start_date <= _as_date(day) <= end_date:
+                    raise ValueError("深交所返回日期超出请求区间")
                 shares_yi = float(str(raw_size).replace(",", "")) / 1e4
                 rows.append({
                     "date": day,
@@ -334,18 +340,36 @@ def fetch_official(code: str, exchange: str, as_of=None):
                 rows = fetch_sse_share_rows_for_date(day, codes=[code])
                 if rows:
                     break
-            # 旧规模接口保留为官方兜底，避免交易所直接接口短时故障。
-            if not rows:
-                scales = fetch_sse_scale_rows(code, start_date, end_date)
-                rows = derive_sse_share_rows(code, scales)
         if not rows:
             return None, None, None
+        if any(not start_date <= _as_date(row["date"]) <= end_date for row in rows):
+            raise ValueError("官方数据日期超出请求区间")
         latest = max(rows, key=lambda item: item["date"])
         return latest["total_shares_yi"], latest["source"], latest["date"]
     except (requests.RequestException, ValueError, TypeError, KeyError) as exc:
         message = re.sub(r"\s+", " ", str(exc)).strip()
         print(f"  [官方源不可用] {code}: {message}", file=sys.stderr)
         return None, None, None
+
+
+def repair_recent_history(code, exchange, as_of):
+    """回补最近七天缺失或未核验记录；只接受所请求日期的官方直接份额。"""
+    existing = {r["date"]: r for r in load_history(code)}
+    failures = 0
+    for offset in range(1, OFFICIAL_LOOKBACK_DAYS + 1):
+        day = as_of - datetime.timedelta(days=offset)
+        if not is_trading_day(day):
+            continue
+        old = existing.get(day.isoformat())
+        if old and old.get("verified") is True and old.get("source") in {"sse_official_shares", "szse_official"}:
+            continue
+        shares, source, actual = fetch_official(code, exchange, day)
+        if shares is None or actual != day.isoformat():
+            failures += 1
+            print(f"[待回补] {code} {day} 缺少当日官方份额", file=sys.stderr)
+            continue
+        append_history(code, actual, shares, source, True)
+    return failures
 
 
 def main(argv=None):
@@ -363,7 +387,9 @@ def main(argv=None):
         code, exchange, name = etf["code"], etf["exchange"], etf["name"]
         baseline = etf["huijin_shares_yi"]
 
-        # 官方源始终优先；只有官方源完全失败才访问东财 f84。
+        failures += repair_recent_history(code, exchange, today)
+
+        # 每日份额只接受有明确日期的交易所直接披露。
         shares, source, actual_date = fetch_official(code, exchange, today)
         verified = shares is not None
         if shares is None:
@@ -373,6 +399,10 @@ def main(argv=None):
             failures += 1
             continue
 
+        if actual_date != today.isoformat():
+            print(f"[待更新] {name} 官方数据仍为{actual_date}", file=sys.stderr)
+            failures += 1
+            continue
         append_history(code, actual_date, shares, source, verified)
         gap, inverted = gap_to_baseline(shares, baseline)
         flag = f" 倒挂! 减持下限{abs(gap):.1f}亿份" if inverted else ""

@@ -49,7 +49,8 @@ class TestOfficialShareBackfill(unittest.TestCase):
         "code": "588000", "exchange": "SH", "name": "科创50",
         "huijin_shares_yi": None,
     }]})
-    def test_undated_f84_cannot_be_written_as_today(self, conf, official, eastmoney, append):
+    @mock.patch("fetch_etf_shares.repair_recent_history", return_value=0)
+    def test_undated_f84_cannot_be_written_as_today(self, repair, conf, official, eastmoney, append):
         from fetch_etf_shares import main
         self.assertEqual(main(["--as-of", "2026-11-03"]), 2)
         eastmoney.assert_not_called()

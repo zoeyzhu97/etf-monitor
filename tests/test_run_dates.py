@@ -69,7 +69,8 @@ class TestRunDatePropagation(unittest.TestCase):
                 return_value=[{"date": "2026-10-12"}])
     @mock.patch("check_data_freshness.market_data_date",
                 return_value=datetime.date(2026, 10, 12))
-    def test_original_failure_passes_but_real_staleness_still_fails(self, clock, history, config):
+    @mock.patch("check_data_freshness.quality_errors", return_value=[])
+    def test_original_failure_passes_but_real_staleness_still_fails(self, quality, clock, history, config):
         with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": ""}):
             self.assertEqual(check_data_freshness.main([]), 0)
             history.return_value = [{"date": "2026-10-09"}]
@@ -80,7 +81,8 @@ class TestRunDatePropagation(unittest.TestCase):
     @mock.patch("check_data_freshness.load_history",
                 return_value=[{"date": "2026-10-12"}])
     @mock.patch("check_data_freshness.market_data_date")
-    def test_fixed_date_survives_clock_crossing_close(self, clock, history, config):
+    @mock.patch("check_data_freshness.quality_errors", return_value=[])
+    def test_fixed_date_survives_clock_crossing_close(self, quality, clock, history, config):
         with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": ""}):
             self.assertEqual(check_data_freshness.main(["--as-of", "2026-10-12"]), 0)
         clock.assert_not_called()
@@ -93,7 +95,8 @@ class TestRunDatePropagation(unittest.TestCase):
         "code": "510300", "exchange": "SH", "name": "test", "huijin_shares_yi": None,
     }]})
     @mock.patch("fetch_etf_shares.market_data_date")
-    def test_fetch_uses_fixed_date_and_preserves_official_date(self, clock, config, fetch, append, sleep):
+    @mock.patch("fetch_etf_shares.repair_recent_history", return_value=0)
+    def test_fetch_uses_fixed_date_and_preserves_official_date(self, repair, clock, config, fetch, append, sleep):
         self.assertEqual(fetch_etf_shares.main(["--as-of", "2026-10-16"]), 0)
         clock.assert_not_called()
         fetch.assert_called_once_with("510300", "SH", datetime.date(2026, 10, 16))

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """公共工具: 路径、JSON读写、交易日判断、历史快照读写。全部离线可测。"""
 import json
+import math
 import os
 import datetime
 from zoneinfo import ZoneInfo
@@ -60,7 +61,16 @@ def load_history(code):
 
 def append_history(code, date_str, shares_yi, source, verified):
     """追加一条快照; 同日重复运行则覆盖当日记录。"""
-    rows = [r for r in load_history(code) if r["date"] != date_str]
+    datetime.date.fromisoformat(date_str)
+    if isinstance(shares_yi, bool) or not math.isfinite(float(shares_yi)) or not 0.1 <= float(shares_yi) <= 5000:
+        raise ValueError("份额必须是合理范围内的有限正数")
+    existing = load_history(code)
+    old = next((r for r in existing if r["date"] == date_str), None)
+    if old and old.get("verified") is True and verified is not True:
+        raise ValueError("禁止未核验数据覆盖已核验记录")
+    if source == "eastmoney_f84":
+        raise ValueError("f84没有份额所属日期，禁止写入每日历史")
+    rows = [r for r in existing if r["date"] != date_str]
     rows.append({"date": date_str, "total_shares_yi": round(shares_yi, 2),
                  "source": source, "verified": bool(verified)})
     rows.sort(key=lambda r: r["date"])

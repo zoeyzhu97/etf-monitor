@@ -29,6 +29,9 @@ jobs:
         with:
           ref: main
 
+      - name: Validate official share snapshot
+        run: python3 scripts/check_data_freshness.py --snapshot
+
       - name: Prepare static site
         run: |
           mkdir -p "${RUNNER_TEMP}/etf-monitor-pages"
