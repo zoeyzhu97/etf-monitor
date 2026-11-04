@@ -4408,5 +4408,11 @@
     "total_shares_yi": 374.76,
     "source": "eastmoney_f84",
     "verified": false
+  },
+  {
+    "date": "2026-11-04",
+    "total_shares_yi": 463.63,
+    "source": "sse_official_shares",
+    "verified": true
   }
 ]
