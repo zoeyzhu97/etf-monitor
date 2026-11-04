@@ -3,7 +3,7 @@
 
 数据源优先级：
   1) 上交所/深交所官方披露。查询最近 7 天并使用实际披露日期；
-  2) 东方财富 f84，仅在官方源失败时兜底，记录一律 verified=False。
+  2) 官方源失败时保留历史并重试；无份额日期的东方财富 f84 不写入日线。
 
 上交所 ETFGM 披露的是每日总份额（万份），直接换算为亿份；旧的
 CKLSGM 规模/净值反推路径只在直接份额接口不可用时兜底。
@@ -367,12 +367,9 @@ def main(argv=None):
         shares, source, actual_date = fetch_official(code, exchange, today)
         verified = shares is not None
         if shares is None:
-            shares = fetch_eastmoney(code, exchange)
-            source, actual_date, verified = "eastmoney_f84", today.isoformat(), False
-            if shares is not None:
-                print(f"  [仅东财兜底，未核验] {name}")
-        if shares is None:
-            print(f"[失败] {name}({code}) 全部数据源不可用", file=sys.stderr)
+            # f84 没有份额所属日期，行情时间戳也不能证明份额已经更新。
+            # 不得把无日期的快照写成今日份额；留待官方披露后重试。
+            print(f"[失败] {name}({code}) 官方份额不可用，保留历史并等待重试", file=sys.stderr)
             failures += 1
             continue
 

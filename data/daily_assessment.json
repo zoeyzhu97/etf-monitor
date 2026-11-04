@@ -25,19 +25,19 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "8/8只ETF最近一条有效记录增加，合计约增加471.7亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加102.6亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 8,
-        "falling_etfs": 0,
-        "net_change_yi": 471.67,
+        "rising_etfs": 7,
+        "falling_etfs": 1,
+        "net_change_yi": 102.65,
         "latest_date": "2026-11-04",
         "earliest_latest_date": "2026-11-04",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
-        "consecutive_inflow_etfs": 2,
+        "consecutive_inflow_etfs": 7,
         "consecutive_outflow_etfs": 0
       }
     },
@@ -172,15 +172,15 @@
       ]
     },
     "repair_readiness": {
-      "score": 6,
+      "score": 22,
       "level": "弱",
       "alert": false,
       "components": [
         {
           "label": "ETF连续3个更新间隔增加",
-          "points": 6,
+          "points": 22,
           "max": 25,
-          "detail": "2/8只可比ETF"
+          "detail": "7/8只可比ETF"
         },
         {
           "label": "指数同时站上20日和60日均线",

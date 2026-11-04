@@ -1,0 +1,154 @@
+{
+  "checked_at_utc": "2026-11-04T17:20:27.566769+00:00",
+  "url": "https://query.sse.com.cn/commonQuery.do",
+  "sqlId": "COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L",
+  "STAT_DATE": "2026-11-03",
+  "raw_rows": [
+    {
+      "STAT_DATE": "2026-11-03",
+      "ETF_TYPE": "单市",
+      "SEC_CODE": "510050",
+      "NUM": "5",
+      "SEC_NAME": "50ETF",
+      "TOT_VOL": "1646076.68"
+    },
+    {
+      "STAT_DATE": "2026-11-03",
+      "ETF_TYPE": "跨市",
+      "SEC_CODE": "510300",
+      "NUM": "21",
+      "SEC_NAME": "300ETF",
+      "TOT_VOL": "4458738.77"
+    },
+    {
+      "STAT_DATE": "2026-11-03",
+      "ETF_TYPE": "跨市",
+      "SEC_CODE": "510310",
+      "NUM": "22",
+      "SEC_NAME": "HS300ETF",
+      "TOT_VOL": "2475244.4"
+    },
+    {
+      "STAT_DATE": "2026-11-03",
+      "ETF_TYPE": "跨市",
+      "SEC_CODE": "510330",
+      "NUM": "24",
+      "SEC_NAME": "华夏300",
+      "TOT_VOL": "1533264.98"
+    },
+    {
+      "STAT_DATE": "2026-11-03",
+      "ETF_TYPE": "跨市",
+      "SEC_CODE": "512100",
+      "NUM": "90",
+      "SEC_NAME": "1000ETF",
+      "TOT_VOL": "1691521.76"
+    },
+    {
+      "STAT_DATE": "2026-11-03",
+      "ETF_TYPE": "单市",
+      "SEC_CODE": "588000",
+      "NUM": "773",
+      "SEC_NAME": "科创50",
+      "TOT_VOL": "10477166.82"
+    }
+  ],
+  "corrections": [
+    {
+      "code": "510050",
+      "before": {
+        "date": "2026-11-03",
+        "total_shares_yi": 125.57,
+        "source": "eastmoney_f84",
+        "verified": false
+      },
+      "after": {
+        "code": "510050",
+        "date": "2026-11-03",
+        "total_shares_yi": 164.607668,
+        "source": "sse_official_shares",
+        "verified": true
+      }
+    },
+    {
+      "code": "510300",
+      "before": {
+        "date": "2026-11-03",
+        "total_shares_yi": 374.76,
+        "source": "eastmoney_f84",
+        "verified": false
+      },
+      "after": {
+        "code": "510300",
+        "date": "2026-11-03",
+        "total_shares_yi": 445.87387699999994,
+        "source": "sse_official_shares",
+        "verified": true
+      }
+    },
+    {
+      "code": "510310",
+      "before": {
+        "date": "2026-11-03",
+        "total_shares_yi": 228.86,
+        "source": "eastmoney_f84",
+        "verified": false
+      },
+      "after": {
+        "code": "510310",
+        "date": "2026-11-03",
+        "total_shares_yi": 247.52444,
+        "source": "sse_official_shares",
+        "verified": true
+      }
+    },
+    {
+      "code": "510330",
+      "before": {
+        "date": "2026-11-03",
+        "total_shares_yi": 136.15,
+        "source": "eastmoney_f84",
+        "verified": false
+      },
+      "after": {
+        "code": "510330",
+        "date": "2026-11-03",
+        "total_shares_yi": 153.326498,
+        "source": "sse_official_shares",
+        "verified": true
+      }
+    },
+    {
+      "code": "512100",
+      "before": {
+        "date": "2026-11-03",
+        "total_shares_yi": 142.47,
+        "source": "eastmoney_f84",
+        "verified": false
+      },
+      "after": {
+        "code": "512100",
+        "date": "2026-11-03",
+        "total_shares_yi": 169.152176,
+        "source": "sse_official_shares",
+        "verified": true
+      }
+    },
+    {
+      "code": "588000",
+      "before": {
+        "date": "2026-11-03",
+        "total_shares_yi": 851.37,
+        "source": "eastmoney_f84",
+        "verified": false
+      },
+      "after": {
+        "code": "588000",
+        "date": "2026-11-03",
+        "total_shares_yi": 1047.716682,
+        "source": "sse_official_shares",
+        "verified": true
+      }
+    }
+  ]
+}

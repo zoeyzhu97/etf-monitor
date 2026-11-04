@@ -42,6 +42,19 @@ class TestInversion(unittest.TestCase):
 
 
 class TestOfficialShareBackfill(unittest.TestCase):
+    @mock.patch("fetch_etf_shares.append_history")
+    @mock.patch("fetch_etf_shares.fetch_eastmoney", return_value=851.37)
+    @mock.patch("fetch_etf_shares.fetch_official", return_value=(None, None, None))
+    @mock.patch("fetch_etf_shares.load_json", return_value={"etfs": [{
+        "code": "588000", "exchange": "SH", "name": "科创50",
+        "huijin_shares_yi": None,
+    }]})
+    def test_undated_f84_cannot_be_written_as_today(self, conf, official, eastmoney, append):
+        from fetch_etf_shares import main
+        self.assertEqual(main(["--as-of", "2026-11-03"]), 2)
+        eastmoney.assert_not_called()
+        append.assert_not_called()
+
     def test_parse_sse_direct_total_shares(self):
         payload = {"result": [
             {"STAT_DATE": "2026-01-05", "SEC_CODE": "510300",
