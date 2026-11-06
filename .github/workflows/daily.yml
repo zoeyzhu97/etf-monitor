@@ -199,7 +199,7 @@ jobs:
       queue: max
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - name: Check out newly published data
         uses: actions/checkout@v4
@@ -227,7 +227,23 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 600000
+
+      # Pages can still be finishing an earlier backend deployment after its job exits.
+      # Retry only deployment, retaining the same validated artifact.
+      - name: Allow previous Pages deployment to settle
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
+
+      - name: Retry GitHub Pages deployment
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 600000
 
       - name: Verify public Pages snapshot
-        run: python3 scripts/verify_published.py --url "https://zoeyzhu97.github.io/etf-monitor/"
+        run: python3 scripts/verify_published.py --url "https://zoeyzhu97.github.io/etf-monitor/" --attempts 41
