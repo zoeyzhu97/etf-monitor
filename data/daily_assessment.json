@@ -2,20 +2,20 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-11-11",
+  "as_of": "2026-11-12",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
     "important": "ETF总份额是全市场总量，不是中央汇金的逐日持仓。"
   },
   "verdict": {
-    "state": "mixed",
-    "label": "信号尚未共同收敛",
-    "plain": "四个模型没有至少3个同向，最诚实的结论是继续观察。",
+    "state": "risk",
+    "label": "多模型共同预警",
+    "plain": "至少3个模型同向偏弱；重点是控制风险，不要把国家队可能出手当成托底承诺。",
     "counts": {
       "support": 1,
-      "risk": 2,
-      "neutral": 1
+      "risk": 3,
+      "neutral": 0
     },
     "rule": "至少3/4个模型同向才称为共同收敛"
   },
@@ -25,61 +25,61 @@
       "name": "模型1 · ETF份额流向",
       "vote": "risk",
       "title": "多数ETF总份额减少",
-      "explanation": "7/8只ETF最近一条有效记录减少，合计约减少14.6亿份。若连续多日发生，才值得提高警惕。",
+      "explanation": "7/8只ETF最近一条有效记录减少，合计约减少49.3亿份。若连续多日发生，才值得提高警惕。",
       "metrics": {
         "comparable_etfs": 8,
         "rising_etfs": 1,
         "falling_etfs": 7,
-        "net_change_yi": -14.61,
-        "latest_date": "2026-11-11",
-        "earliest_latest_date": "2026-11-11",
+        "net_change_yi": -49.34,
+        "latest_date": "2026-11-12",
+        "earliest_latest_date": "2026-11-12",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
         "streak_comparable_etfs": 8,
         "consecutive_inflow_etfs": 0,
-        "consecutive_outflow_etfs": 3
+        "consecutive_outflow_etfs": 5
       }
     },
     {
       "id": "trend",
       "name": "模型2 · 三大指数趋势",
-      "vote": "neutral",
-      "title": "三大指数趋势有分歧",
-      "explanation": "上证、深证、科创50没有形成统一趋势，仍处于观察区。",
+      "vote": "risk",
+      "title": "多数指数跌到中短期均线下方",
+      "explanation": "2/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-11-11",
-          "close": 3680.64,
-          "ma20": 3675.29,
-          "ma60": 3827.43,
-          "above_ma20": true,
-          "above_ma60": false,
-          "return20": -0.023,
-          "drawdown120": -0.1173,
-          "volatility20": 0.1552
-        },
-        "399001": {
-          "date": "2026-11-11",
-          "close": 11389.74,
-          "ma20": 11392.29,
-          "ma60": 12847.46,
+          "date": "2026-11-12",
+          "close": 3655.83,
+          "ma20": 3672.71,
+          "ma60": 3822.58,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0595,
-          "drawdown120": -0.3043,
-          "volatility20": 0.3198
+          "return20": -0.0139,
+          "drawdown120": -0.1218,
+          "volatility20": 0.1474
+        },
+        "399001": {
+          "date": "2026-11-12",
+          "close": 11197.98,
+          "ma20": 11361.35,
+          "ma60": 12793.85,
+          "above_ma20": false,
+          "above_ma60": false,
+          "return20": -0.0524,
+          "drawdown120": -0.316,
+          "volatility20": 0.3146
         },
         "000688": {
-          "date": "2026-11-11",
-          "close": 1300.38,
-          "ma20": 1280.0,
-          "ma60": 1498.86,
+          "date": "2026-11-12",
+          "close": 1309.84,
+          "ma20": 1277.52,
+          "ma60": 1491.74,
           "above_ma20": true,
           "above_ma60": false,
-          "return20": -0.0579,
-          "drawdown120": -0.411,
-          "volatility20": 0.5552
+          "return20": -0.0365,
+          "drawdown120": -0.4067,
+          "volatility20": 0.5542
         }
       }
     },
@@ -141,21 +141,21 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 42,
-      "level": "中",
-      "alert": false,
+      "score": 83,
+      "level": "高",
+      "alert": true,
       "components": [
         {
           "label": "ETF连续3个更新间隔减少",
-          "points": 9,
+          "points": 16,
           "max": 25,
-          "detail": "3/8只可比ETF"
+          "detail": "5/8只可比ETF"
         },
         {
           "label": "指数同时跌破20日和60日均线",
-          "points": 8,
+          "points": 17,
           "max": 25,
-          "detail": "1/3个指数"
+          "detail": "2/3个指数"
         },
         {
           "label": "恐慌压力",
@@ -165,9 +165,9 @@
         },
         {
           "label": "三项同时出现",
-          "points": 0,
+          "points": 25,
           "max": 25,
-          "detail": "未触发"
+          "detail": "已触发"
         }
       ]
     },
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
@@ -231,9 +231,9 @@
       ]
     },
     "general_signal": {
-      "state": "wait",
-      "headline": "方向不完整，继续观察",
-      "guidance": "风险与修复都未形成完整组合，暂不根据单一信号行动。 数据提示：持仓参考线超过120天未更新。",
+      "state": "risk_priority",
+      "headline": "卖出风险警报：高风险组合已触发",
+      "guidance": "不追涨、不把可能的托底当成保证；已有仓位先检查是否超出自己的承受范围。 数据提示：持仓参考线超过120天未更新。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
@@ -257,7 +257,7 @@
       "meaning": "3项同时满足才属于较完整的右侧修复组合；即使满足，也不能确认买方身份或保证上涨。"
     },
     "sell_side": {
-      "label": "卖出/风险侧满足 2/3 项",
+      "label": "卖出/风险侧满足 3/3 项",
       "checks": [
         {
           "label": "多数ETF份额减少",
@@ -265,7 +265,7 @@
         },
         {
           "label": "多数指数跌破20日与60日均线",
-          "met": false
+          "met": true
         },
         {
           "label": "多数指数仍有明显恐慌压力",
@@ -277,15 +277,15 @@
     "history_boundary": "历史事件研究只统计买入/政策干预。当前没有足够的、经官方确认且可精确定位的A股国家队卖出事件，因此不虚构卖出胜率模型。"
   },
   "action_guide": {
-    "level": "等待级：证据不足",
+    "level": "警惕级：先管风险",
     "why": [
       "多数ETF总份额减少",
-      "三大指数趋势有分歧"
+      "多数指数跌到中短期均线下方"
     ],
     "checklist": [
-      "不根据单一红色区域、单日申购或一条政策新闻做决定。",
-      "等待份额模型与趋势模型转为同向，再重新评估。",
-      "如果你看不懂一个信号，就先不行动；错过一点通常比在不理解时冒险更可控。"
+      "不要因为“国家队可能救市”就假定下跌空间已经消失。",
+      "等待至少两个指数重回20日均线，并观察份额流出是否停止。",
+      "连续大额份额减少、三大指数同步跌破60日均线，是需要升级警惕的组合。"
     ],
     "boundary": "这是通用观察框架，不了解你的资金用途、期限和承受亏损能力，不能替代个性化投资建议。"
   },
