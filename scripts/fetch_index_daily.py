@@ -35,7 +35,12 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
 def backfill_with_akshare(code: str, symbol: str, start_date: str):
     import akshare as ak  # noqa: 延迟导入, 未安装时报错清晰
-    df = ak.stock_zh_index_daily(symbol=symbol)
+    # AKShare 1.20.44 renamed the interface. Prefer the new name;
+    # retain compatibility with older local installations.
+    fetch = getattr(ak, "index_zh_daily_sina", None)
+    if fetch is None:
+        fetch = ak.stock_zh_index_daily
+    df = fetch(symbol=symbol)
     required = {"date", "close"}
     if not required.issubset(df.columns):
         raise ValueError(f"akshare 列名变更: {list(df.columns)}")

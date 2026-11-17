@@ -90,5 +90,5 @@ class TestShareIntegrity(unittest.TestCase):
 
     def test_all_publish_paths_have_quality_gate(self):
         workflows = Path(__file__).resolve().parents[1] / '.github/workflows'
-        for name, count in [('daily.yml', 2), ('deploy-pages.yml', 1), ('deploy-cloudbase.yml', 1)]:
+        for name, count in [('daily.yml', 3), ('deploy-pages.yml', 1), ('deploy-cloudbase.yml', 1)]:
             self.assertEqual((workflows / name).read_text().count('scripts/check_data_freshness.py --snapshot'), count)

@@ -72,6 +72,14 @@ class TestDailyWorkflow(unittest.TestCase):
             self.assertIn("steps.freshness.outcome == 'failure'", body)
             self.assertIn("github.event_name == 'workflow_run'", body)
 
+    def test_complete_snapshot_is_validated_before_commit(self):
+        gate = self.workflow.index('- name: Validate complete snapshot before commit')
+        self.assertLess(self.workflow.index('- name: Daily comment'), gate)
+        self.assertLess(gate, self.workflow.index('- name: Commit & push'))
+        body = self.workflow[gate:self.workflow.index('- name: Commit & push')]
+        self.assertIn('check_data_freshness.py --snapshot', body)
+        self.assertNotIn('continue-on-error', body)
+
     def test_cloudbase_deploy_is_chained_to_ready_snapshot(self):
         """机器人提交不会触发push工作流，国内镜像须在同一流水线部署。"""
         self.assertIn(

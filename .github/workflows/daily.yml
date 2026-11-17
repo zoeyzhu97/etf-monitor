@@ -81,6 +81,9 @@ jobs:
       - name: Daily comment
         if: steps.freshness.outcome == 'success'
         run: python scripts/daily_comment.py
+      - name: Validate complete snapshot before commit
+        if: steps.freshness.outcome == 'success'
+        run: python scripts/check_data_freshness.py --snapshot
       - name: Commit & push
         id: publish
         if: steps.freshness.outcome == 'success'
