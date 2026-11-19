@@ -2,7 +2,7 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-11-18",
+  "as_of": "2026-11-19",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
@@ -25,14 +25,14 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "6/8只ETF最近一条有效记录增加，合计约增加48.1亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加90.3亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 6,
-        "falling_etfs": 2,
-        "net_change_yi": 48.09,
-        "latest_date": "2026-11-18",
-        "earliest_latest_date": "2026-11-18",
+        "rising_etfs": 7,
+        "falling_etfs": 1,
+        "net_change_yi": 90.34,
+        "latest_date": "2026-11-19",
+        "earliest_latest_date": "2026-11-19",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
@@ -46,40 +46,40 @@
       "name": "模型2 · 三大指数趋势",
       "vote": "risk",
       "title": "多数指数跌到中短期均线下方",
-      "explanation": "3/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
+      "explanation": "2/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-11-18",
-          "close": 3587.83,
-          "ma20": 3648.4,
-          "ma60": 3798.95,
+          "date": "2026-11-19",
+          "close": 3577.62,
+          "ma20": 3644.38,
+          "ma60": 3793.67,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0337,
-          "drawdown120": -0.1382,
-          "volatility20": 0.1487
+          "return20": -0.022,
+          "drawdown120": -0.1406,
+          "volatility20": 0.141
         },
         "399001": {
-          "date": "2026-11-18",
-          "close": 10659.41,
-          "ma20": 11152.95,
-          "ma60": 12543.64,
+          "date": "2026-11-19",
+          "close": 10583.2,
+          "ma20": 11114.24,
+          "ma60": 12488.52,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0893,
-          "drawdown120": -0.3489,
-          "volatility20": 0.3291
+          "return20": -0.0682,
+          "drawdown120": -0.3536,
+          "volatility20": 0.3164
         },
         "000688": {
-          "date": "2026-11-18",
-          "close": 1247.99,
-          "ma20": 1256.97,
-          "ma60": 1457.53,
-          "above_ma20": false,
+          "date": "2026-11-19",
+          "close": 1270.78,
+          "ma20": 1255.21,
+          "ma60": 1450.92,
+          "above_ma20": true,
           "above_ma60": false,
-          "return20": -0.0709,
-          "drawdown120": -0.4348,
-          "volatility20": 0.587
+          "return20": -0.0269,
+          "drawdown120": -0.4244,
+          "volatility20": 0.5841
         }
       }
     },
@@ -141,8 +141,8 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 50,
-      "level": "较高",
+      "score": 42,
+      "level": "中",
       "alert": false,
       "components": [
         {
@@ -153,9 +153,9 @@
         },
         {
           "label": "指数同时跌破20日和60日均线",
-          "points": 25,
+          "points": 17,
           "max": 25,
-          "detail": "3/3个指数"
+          "detail": "2/3个指数"
         },
         {
           "label": "恐慌压力",
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
@@ -231,9 +231,9 @@
       ]
     },
     "general_signal": {
-      "state": "defensive",
-      "headline": "偏防守，等待风险回落",
-      "guidance": "当前不适合仅凭单日ETF份额增加去抄底；等指数和波动至少再确认一项。 数据提示：持仓参考线超过120天未更新。",
+      "state": "wait",
+      "headline": "方向不完整，继续观察",
+      "guidance": "风险与修复都未形成完整组合，暂不根据单一信号行动。 数据提示：持仓参考线超过120天未更新。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
