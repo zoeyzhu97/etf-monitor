@@ -2,19 +2,19 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-11-24",
+  "as_of": "2026-11-25",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
     "important": "ETF总份额是全市场总量，不是中央汇金的逐日持仓。"
   },
   "verdict": {
-    "state": "risk",
-    "label": "多模型共同预警",
-    "plain": "至少3个模型同向偏弱；重点是控制风险，不要把国家队可能出手当成托底承诺。",
+    "state": "mixed",
+    "label": "信号尚未共同收敛",
+    "plain": "四个模型没有至少3个同向，最诚实的结论是继续观察。",
     "counts": {
-      "support": 1,
-      "risk": 3,
+      "support": 2,
+      "risk": 2,
       "neutral": 0
     },
     "rule": "至少3/4个模型同向才称为共同收敛"
@@ -23,16 +23,16 @@
     {
       "id": "share_flow",
       "name": "模型1 · ETF份额流向",
-      "vote": "risk",
-      "title": "多数ETF总份额减少",
-      "explanation": "6/8只ETF最近一条有效记录减少，合计约减少22.9亿份。若连续多日发生，才值得提高警惕。",
+      "vote": "support",
+      "title": "多数ETF总份额增加",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加105.8亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
-        "rising_etfs": 2,
-        "falling_etfs": 6,
-        "net_change_yi": -22.86,
-        "latest_date": "2026-11-24",
-        "earliest_latest_date": "2026-11-24",
+        "rising_etfs": 7,
+        "falling_etfs": 1,
+        "net_change_yi": 105.83,
+        "latest_date": "2026-11-25",
+        "earliest_latest_date": "2026-11-25",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
@@ -46,40 +46,40 @@
       "name": "模型2 · 三大指数趋势",
       "vote": "risk",
       "title": "多数指数跌到中短期均线下方",
-      "explanation": "2/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
+      "explanation": "3/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-11-24",
-          "close": 3548.37,
-          "ma20": 3623.62,
-          "ma60": 3775.84,
+          "date": "2026-11-25",
+          "close": 3476.47,
+          "ma20": 3613.37,
+          "ma60": 3768.96,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0274,
-          "drawdown120": -0.1477,
-          "volatility20": 0.1359
+          "return20": -0.0557,
+          "drawdown120": -0.1649,
+          "volatility20": 0.145
         },
         "399001": {
-          "date": "2026-11-24",
-          "close": 10423.6,
-          "ma20": 10948.26,
-          "ma60": 12309.74,
+          "date": "2026-11-25",
+          "close": 10086.35,
+          "ma20": 10878.92,
+          "ma60": 12248.75,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0731,
-          "drawdown120": -0.3633,
-          "volatility20": 0.3115
+          "return20": -0.1209,
+          "drawdown120": -0.3839,
+          "volatility20": 0.3139
         },
         "000688": {
-          "date": "2026-11-24",
-          "close": 1250.09,
-          "ma20": 1245.0,
-          "ma60": 1430.92,
-          "above_ma20": true,
+          "date": "2026-11-25",
+          "close": 1186.14,
+          "ma20": 1240.16,
+          "ma60": 1423.95,
+          "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0017,
-          "drawdown120": -0.4338,
-          "volatility20": 0.5576
+          "return20": -0.0754,
+          "drawdown120": -0.4628,
+          "volatility20": 0.5775
         }
       }
     },
@@ -141,8 +141,8 @@
     "formula_version": "1.0",
     "definition": "连续=最近3个相邻更新间隔；每项25分，三项同时满足再加25分。",
     "market_risk": {
-      "score": 42,
-      "level": "中",
+      "score": 50,
+      "level": "较高",
       "alert": false,
       "components": [
         {
@@ -153,9 +153,9 @@
         },
         {
           "label": "指数同时跌破20日和60日均线",
-          "points": 17,
+          "points": 25,
           "max": 25,
-          "detail": "2/3个指数"
+          "detail": "3/3个指数"
         },
         {
           "label": "恐慌压力",
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
@@ -231,19 +231,19 @@
       ]
     },
     "general_signal": {
-      "state": "wait",
-      "headline": "方向不完整，继续观察",
-      "guidance": "风险与修复都未形成完整组合，暂不根据单一信号行动。 数据提示：持仓参考线超过120天未更新。",
+      "state": "defensive",
+      "headline": "偏防守，等待风险回落",
+      "guidance": "当前不适合仅凭单日ETF份额增加去抄底；等指数和波动至少再确认一项。 数据提示：持仓参考线超过120天未更新。",
       "boundary": "风险分高不等于必须卖，修复分高不等于必须买；个人资金期限和承受亏损能力不在本模型中。"
     }
   },
   "two_sided": {
     "buy_side": {
-      "label": "买入/承接侧满足 0/3 项",
+      "label": "买入/承接侧满足 1/3 项",
       "checks": [
         {
           "label": "多数ETF份额增加",
-          "met": false
+          "met": true
         },
         {
           "label": "多数指数站上20日与60日均线",
@@ -257,11 +257,11 @@
       "meaning": "3项同时满足才属于较完整的右侧修复组合；即使满足，也不能确认买方身份或保证上涨。"
     },
     "sell_side": {
-      "label": "卖出/风险侧满足 3/3 项",
+      "label": "卖出/风险侧满足 2/3 项",
       "checks": [
         {
           "label": "多数ETF份额减少",
-          "met": true
+          "met": false
         },
         {
           "label": "多数指数跌破20日与60日均线",
@@ -277,15 +277,15 @@
     "history_boundary": "历史事件研究只统计买入/政策干预。当前没有足够的、经官方确认且可精确定位的A股国家队卖出事件，因此不虚构卖出胜率模型。"
   },
   "action_guide": {
-    "level": "警惕级：先管风险",
+    "level": "等待级：证据不足",
     "why": [
-      "多数ETF总份额减少",
+      "多数ETF总份额增加",
       "多数指数跌到中短期均线下方"
     ],
     "checklist": [
-      "不要因为“国家队可能救市”就假定下跌空间已经消失。",
-      "等待至少两个指数重回20日均线，并观察份额流出是否停止。",
-      "连续大额份额减少、三大指数同步跌破60日均线，是需要升级警惕的组合。"
+      "不根据单一红色区域、单日申购或一条政策新闻做决定。",
+      "等待份额模型与趋势模型转为同向，再重新评估。",
+      "如果你看不懂一个信号，就先不行动；错过一点通常比在不理解时冒险更可控。"
     ],
     "boundary": "这是通用观察框架，不了解你的资金用途、期限和承受亏损能力，不能替代个性化投资建议。"
   },
