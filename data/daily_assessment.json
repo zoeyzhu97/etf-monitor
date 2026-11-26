@@ -2,7 +2,7 @@
   "schema_version": 2,
   "market_scope": "CN",
   "market_scope_label": "仅中国大陆A股",
-  "as_of": "2026-11-25",
+  "as_of": "2026-11-26",
   "data_explanation": {
     "official_szse_etf": "159919嘉实沪深300ETF每日总份额来自深交所基金规模报表",
     "baseline": "2025-12-31定期报告持仓参考线；6只ETF有可比较基线",
@@ -25,14 +25,14 @@
       "name": "模型1 · ETF份额流向",
       "vote": "support",
       "title": "多数ETF总份额增加",
-      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加105.8亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
+      "explanation": "7/8只ETF最近一条有效记录增加，合计约增加49.7亿份。它说明市场净申购偏强，但不能证明买方就是国家队。",
       "metrics": {
         "comparable_etfs": 8,
         "rising_etfs": 7,
-        "falling_etfs": 1,
-        "net_change_yi": 105.83,
-        "latest_date": "2026-11-25",
-        "earliest_latest_date": "2026-11-25",
+        "falling_etfs": 0,
+        "net_change_yi": 49.67,
+        "latest_date": "2026-11-26",
+        "earliest_latest_date": "2026-11-26",
         "latest_verified": 8,
         "latest_total": 8,
         "streak_intervals": 3,
@@ -49,37 +49,37 @@
       "explanation": "3/3个指数同时位于20日和60日均线下方，趋势仍弱，贸然把一次反弹当成见底的风险较高。",
       "metrics": {
         "000001": {
-          "date": "2026-11-25",
-          "close": 3476.47,
-          "ma20": 3613.37,
-          "ma60": 3768.96,
+          "date": "2026-11-26",
+          "close": 3476.88,
+          "ma20": 3604.64,
+          "ma60": 3761.7,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0557,
-          "drawdown120": -0.1649,
-          "volatility20": 0.145
+          "return20": -0.0478,
+          "drawdown120": -0.1648,
+          "volatility20": 0.144
         },
         "399001": {
-          "date": "2026-11-25",
-          "close": 10086.35,
-          "ma20": 10878.92,
-          "ma60": 12248.75,
+          "date": "2026-11-26",
+          "close": 10084.04,
+          "ma20": 10826.21,
+          "ma60": 12186.13,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.1209,
-          "drawdown120": -0.3839,
-          "volatility20": 0.3139
+          "return20": -0.0946,
+          "drawdown120": -0.3841,
+          "volatility20": 0.3031
         },
         "000688": {
-          "date": "2026-11-25",
-          "close": 1186.14,
-          "ma20": 1240.16,
-          "ma60": 1423.95,
+          "date": "2026-11-26",
+          "close": 1169.99,
+          "ma20": 1237.26,
+          "ma60": 1416.25,
           "above_ma20": false,
           "above_ma60": false,
-          "return20": -0.0754,
-          "drawdown120": -0.4628,
-          "volatility20": 0.5775
+          "return20": -0.0473,
+          "drawdown120": -0.4701,
+          "volatility20": 0.5611
         }
       }
     },
@@ -220,7 +220,7 @@
           "label": "ETF与指数日期及时",
           "points": 30,
           "max": 30,
-          "detail": "最旧数据滞后1天"
+          "detail": "日期齐全"
         },
         {
           "label": "持仓参考线在120天内",
