@@ -4510,5 +4510,11 @@
     "total_shares_yi": 254.48,
     "source": "sse_official_shares",
     "verified": true
+  },
+  {
+    "date": "2026-11-27",
+    "total_shares_yi": 255.95,
+    "source": "sse_official_shares",
+    "verified": true
   }
 ]
